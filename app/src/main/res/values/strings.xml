@@ -548,7 +548,7 @@
     <string name="language_amharic">አማርኛ</string>
     <string name="language_note">Changing the language restarts the app UI. System messages stay in the language your device uses.</string>
     <string name="mms_received_title">Multimedia message waiting</string>
-    <string name="mms_received_body">A picture or group message arrived. This build can't display new MMS: Android doesn't expose the parser or database write access third-party apps need. Ask the sender to resend as text, or use your carrier's messaging app.</string>
+    <string name="mms_received_body">A picture or group message arrived. This build can\'t display new MMS: Android doesn\'t expose the parser or database write access third-party apps need. Ask the sender to resend as text, or use your carrier\'s messaging app.</string>
     <string name="permission_denied_short">Not granted</string>
     <string name="permission_granted">Granted</string>
     <string name="read_unread_body">Opening a conversation marks its messages as read.</string>

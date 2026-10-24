@@ -67,6 +67,17 @@ jobs:
           gradle-version: '8.9'
           cache-read-only: false
 
+      - name: Validate resources with aapt2 (diagnostics)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Android/Sdk}}"
+          AAPT2="$SDK_ROOT/build-tools/35.0.0/aapt2"
+          mkdir -p /tmp/aapt2-out build-logs
+          "$AAPT2" version | tee build-logs/aapt2.log
+          "$AAPT2" compile --dir app/src/main/res -o /tmp/aapt2-out >> build-logs/aapt2.log 2>&1 || true
+          tail -40 build-logs/aapt2.log
+
       - name: Gradle environment
         run: |
           set -o pipefail
@@ -106,11 +117,11 @@ jobs:
           {
             echo "### Run $GITHUB_RUN_ID ($GITHUB_SHA) failed"
             echo
-            for f in build-logs/compile.log build-logs/unit-tests.log build-logs/assemble-debug.log build-logs/sdk.log; do
+            for f in build-logs/aapt2.log build-logs/compile.log build-logs/unit-tests.log build-logs/assemble-debug.log build-logs/sdk.log; do
               [ -f "$f" ] || continue
               echo "#### $f"
               echo '```'
-              grep -E "^(e: |w: .*error|error:|FAILURE:|\* What went wrong|Execution failed|Caused by|> )" "$f" | head -150 || true
+              grep -E "^(e: |w: .*error|error:|ERROR|FAILURE:|\* What went wrong|Execution failed|Caused by|> )" "$f" | head -160 || true
               echo '```'
             done
           } > /tmp/report.md
