@@ -98,20 +98,43 @@ user actually needs it, and this is the honest mapping:
 | Inbox | `Chats` | pinned/regular sections, unread-first sorting, multi-select (read, mute, archive, delete), swipe actions, search entry, empty/loading/error states, permission + role banners |
 | Inbox | `Starred` | app-starred messages across threads |
 | Inbox | `Archived` | hidden from the main list |
-| Conversation | thread view | date separators, grouped bubbles, sender names in groups, per-message long-press actions (copy, forward, star, info, select, delete), tap-to-retry for failures, OTP chip, SIM indicator, draft persistence |
-| Compose | `New message` | contact picker, free-form numbers, multi-recipient (SMS fan-out or group MMS), validation |
+| Conversation | thread view | date separators, grouped bubbles with run-aware corners, sender names in groups, per-message long-press actions (copy, forward, star, info, select, delete), tap-to-retry for failures, OTP chip, SIM indicator, draft persistence, **suggested replies**, **send later**, **scheduled-message sheet**, **plain-text transcript export** |
+| Compose | `New message` | recipient chips from a contact picker or free-form numbers, whole-row tap to add, multi-recipient (SMS fan-out or group MMS), validation |
 | Contacts | `Contacts` | search, avatar, jump to conversation, permission-gated with a graceful fallback |
 | Search | `Search` | message bodies, names and numbers, date hints |
 | Settings | `Appearance` | theme (system/light/dark), 6 accents, bubble style, font scale, density, wallpaper, avatars, haptics, reduced motion, language |
 | Settings | `Notifications` | new-message alerts, previews, lock-screen privacy, grouping, sound picker, vibration, unread reminders with delay, quiet hours, test notification, system settings link |
 | Settings | `Privacy & security` | app lock (BiometricPrompt), hide previews, OTP detection and masking, blocked senders with one-tap unblock, permission states, threat-model note, delete-all-local-data |
-| Settings | `SIM & messaging` | preferred SIM, delivery reports, auto-retry, multipart handling, MMS notes, signature, system SIM settings |
+| Settings | `SIM & messaging` | preferred SIM, delivery reports, auto-retry, multipart handling, MMS notes, signature, suggested replies toggle, system SIM settings |
 | Settings | `Smart organization` | keyword → category rules, OTP detection, financial-wording warning |
 | Settings | `Backup & restore` | password-encrypted export/import via the Storage Access Framework |
 | Settings | `Storage & diagnostics` | database/preferences/cache sizes, environment snapshot, sanitised event log, clear cache/log |
 | Settings | `About` | version, privacy statement, open-source licences |
 | Gate | Onboarding | permission-by-permission rationale, role request, "not now" |
 | Gate | App lock | biometric / device-credential prompt on entry |
+
+### New in this build: scheduling, suggestions, export
+
+* **Send later** — the composer's clock button queues the message in Room
+  (`scheduled_messages`, schema v3) and arms a `OneTimeWorkRequest` per message
+  (`ScheduledSendWorker`). WorkManager owns the *moment*, Room owns the *text*, so the queue
+  survives process death, reboots and app updates; `rearmPending()` restores any work item that
+  was lost mid-enqueue. The worker refuses to fire early (re-arms instead), keeps the row with
+  the failure reason if the platform rejects the send, and deletes the row only once
+  `SmsSender` reports `SendOutcome.Accepted`. The composer shows a "Scheduled · N" chip that
+  opens a sheet where each waiting message can be sent now or cancelled. Scheduling needs no
+  network, but delivery timing is the system scheduler's, so expect a few minutes of drift in
+  Doze.
+* **Suggested replies** — three chips above the composer while the field is empty, computed on
+  device by `SmartReplies`: a tiny rule table over the last received message (greeting, call
+  request, question, time words, thanks) with English *and* Amharic cues. There is no model, no
+  network call and no message stored anywhere for it; the feature has its own switch in
+  *SIM & messaging* and defaults to on. The chips insert text into the composer rather than
+  sending straight away, so nothing leaves the phone without a deliberate tap.
+* **Conversation export** — the overflow menu writes a plain-text transcript to a file the user
+  picks through the Storage Access Framework (`ACTION_CREATE_DOCUMENT`). The transcript is built
+  in memory at the moment of export and streamed straight to that document; it never passes
+  through an app cache, log or network.
 
 ### Telephony behaviour
 
@@ -280,6 +303,7 @@ pretends incoming messages are being stored.
 | `QuietHoursTest` | windows inside a day and across midnight, disabled windows, formatting |
 | `SmartOrganizerTest` | keyword classification, unknown senders, financial wording, OTP detection limits |
 | `BackupCryptoTest` | AES-GCM round trip, fresh IV per file, wrong password, truncated file, wipe |
+| `SmartRepliesTest` | question/greeting/call/thanks cues, Amharic greeting, empty and null input, limit and de-duplication |
 
 ### Instrumentation tests (`app/src/androidTest`) — need a device or emulator
 
@@ -289,7 +313,7 @@ pretends incoming messages are being stored.
 | `RoutesTest` | navigation route encoding for addresses with `+`, spaces and newlines |
 | `MessageBubbleTest` | Compose rendering of a bubble and the retry affordance |
 
-The JVM tests run in CI on every push and currently all pass (32 tests). The instrumentation
+The JVM tests run in CI on every push and currently all pass (41 tests). The instrumentation
 tests have **not** been executed anywhere yet — they need a device or emulator, which CI does
 not currently provide.
 

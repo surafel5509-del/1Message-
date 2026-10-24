@@ -1,5 +1,6 @@
 package com.onemessages.app.ui.components
 
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -267,8 +268,8 @@ fun SectionHeader(
 @Composable
 fun SettingsSection(
     title: String,
-    content: @Composable () -> Unit,
     subtitle: String? = null,
+    content: @Composable () -> Unit,
 ) {
     Column {
         SectionHeader(title)

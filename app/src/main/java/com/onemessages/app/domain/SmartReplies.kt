@@ -43,14 +43,16 @@ object SmartReplies {
         } else if (containsAny(lower, CALL_WORDS)) {
             picked += SmartReplyKind.CALL_ME
             picked += SmartReplyKind.YES
+        } else if (endsWithQuestion(lower)) {
+            // Questions win over topic words: "are you coming tonight?" wants a yes/no even
+            // though it mentions a time.
+            picked += SmartReplyKind.YES
+            picked += SmartReplyKind.NO
         } else if (containsAny(lower, TIME_WORDS)) {
             picked += SmartReplyKind.ON_MY_WAY
             picked += SmartReplyKind.SEE_YOU_SOON
         } else if (containsAny(lower, THANKS_WORDS)) {
             picked += SmartReplyKind.OK
-        } else if (endsWithQuestion(lower)) {
-            picked += SmartReplyKind.YES
-            picked += SmartReplyKind.NO
         }
 
         // Always offer a neutral acknowledgement so there is a sensible chip in every case.

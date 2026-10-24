@@ -601,4 +601,5 @@
     <string name="export_conversation">Export conversation</string>
     <string name="export_conversation_done">Conversation saved</string>
     <string name="export_conversation_failed">Could not save the conversation</string>
+    <string name="export_speaker_me">Me</string>
 </resources>

@@ -131,13 +131,18 @@ fun MessageBubble(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = spacing.horizontalPadding.dp,
-                vertical = if (isGroupedWithPrevious) {
+                start = spacing.horizontalPadding.dp,
+                end = spacing.horizontalPadding.dp,
+                top = if (isGroupedWithPrevious) {
+                    (spacing.groupedGap / 2).dp
+                } else {
+                    (spacing.verticalGap / 2).dp + if (outgoing) 1.dp else 4.dp
+                },
+                bottom = if (isGroupedWithPrevious) {
                     (spacing.groupedGap / 2).dp
                 } else {
                     (spacing.verticalGap / 2).dp + 1.dp
                 },
-                top = if (!isGroupedWithPrevious && !outgoing) 3.dp else 0.dp,
             ),
         horizontalArrangement = if (outgoing) Arrangement.End else Arrangement.Start,
     ) {

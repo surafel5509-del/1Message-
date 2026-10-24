@@ -498,7 +498,7 @@ fun ConversationRoute(
                 viewModel.sendScheduledNow(message)
                 showScheduledSheet = false
             },
-            onCancel = viewModel::cancelScheduled,
+            onCancel = { message -> viewModel.cancelScheduled(message.id) },
         )
     }
 
@@ -889,11 +889,14 @@ private fun buildTranscript(
 ): String {
     val builder = StringBuilder()
     builder.append(title).append('\n')
-    builder.append(context.getString(R.string.export_conversation)).append('\n')
-    builder.append("\n")
+    builder.append(context.getString(R.string.app_name_brand))
+    builder.append(" · ")
+    builder.append(TimeFormatters.fullTimestamp(context, System.currentTimeMillis()))
+    builder.append("\n\n")
+    val me = context.getString(R.string.export_speaker_me)
     val sorted = messages.sortedBy { it.timestamp }
     sorted.forEach { message ->
-        val who = if (message.direction == Direction.OUTGOING) "me" else title
+        val who = if (message.direction == Direction.OUTGOING) me else title
         builder.append(TimeFormatters.fullTimestamp(context, message.timestamp))
         builder.append(" · ").append(who)
         builder.append('\n')
