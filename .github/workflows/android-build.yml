@@ -140,6 +140,33 @@ jobs:
           path: build-logs/**
           if-no-files-found: warn
 
+      - name: Describe the built APKs
+        if: success()
+        run: |
+          set -o pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Android/Sdk}}"
+          AAPT2="$SDK_ROOT/build-tools/35.0.0/aapt2"
+          {
+            echo "Automatically built from commit $GITHUB_SHA by [workflow run $GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+            echo
+            echo "* \`app-debug.apk\` - debug variant, application id \`com.onemessages.app.debug\`, no minification."
+            echo "* \`app-release.apk\` - minified release variant, **signed with the repository debug keystore** for evaluation only. Replace the signing config before shipping."
+            echo
+            echo "### APK contents (aapt2 dump badging)"
+            echo
+            echo '```'
+            for apk in app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk; do
+              [ -f "$apk" ] || continue
+              echo "== $(basename "$apk") ($(du -h "$apk" | cut -f1))"
+              "$AAPT2" dump badging "$apk" 2>/dev/null | grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity|uses-permission)" | head -25 || echo "aapt2 dump unavailable"
+              echo
+            done
+            echo '```'
+            echo
+            echo "Unit tests: see the workflow run. Device behaviour is not tested by CI."
+          } > release-notes.md
+          cat release-notes.md
+
       - name: Publish APKs as a release
         if: success() && github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
@@ -147,14 +174,7 @@ jobs:
           tag_name: apk-${{ github.run_number }}
           name: 1Messages APKs (build ${{ github.run_number }})
           prerelease: true
-          body: |
-            Automatically built from commit ${{ github.sha }} by [workflow run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-
-            * `app-debug.apk` - debug variant, `com.onemessages.app.debug`, no minification.
-            * `app-release.apk` - minified release variant, **signed with the repository debug
-              keystore** for evaluation only. Replace the signing config before shipping.
-
-            Both are built by Gradle 8.9 / AGP 8.7.2 / Kotlin 2.0.21 against compileSdk 35, minSdk 26.
+          body_path: release-notes.md
           files: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/release/*.apk
