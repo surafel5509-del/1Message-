@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Amharic translations. Strings that are not listed here fall back to English, which is the
+  Android default behaviour. Technical or rarely seen diagnostics text is intentionally left
+  to the English resource so it stays unambiguous for support.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <string name="app_name">1Messages</string>
+    <string name="app_name_brand">1 MESSAGES</string>
+    <string name="app_tagline">የግል፣ ፈጣን እና ከመስመር ውጭ የመልዕክት መተግበሪያ</string>
+
+    <!-- Navigation -->
+    <string name="nav_chats">ውይይቶች</string>
+    <string name="nav_contacts">እውቂያዎች</string>
+    <string name="nav_starred">ኮከብ የተደረጉ</string>
+    <string name="nav_settings">ቅንብሮች</string>
+    <string name="back">ተመለስ</string>
+    <string name="close">ዝጋ</string>
+    <string name="cancel">ሰርዝ</string>
+    <string name="done">ተጠናቀቀ</string>
+    <string name="ok">እሺ</string>
+    <string name="save">አስቀምጥ</string>
+    <string name="retry">እንደገና ሞክር</string>
+    <string name="dismiss">አትራፊ አድርግ</string>
+    <string name="continue_label">ቀጥል</string>
+    <string name="skip">ዝለል</string>
+    <string name="next">ቀጣይ</string>
+    <string name="more">ተጨማሪ አማራጮች</string>
+    <string name="search">ፈልግ</string>
+    <string name="clear">አጽዳ</string>
+    <string name="copy">ቅዳ</string>
+    <string name="copied">ተቀድቷል</string>
+    <string name="share">አጋራ</string>
+    <string name="delete">አጥፋ</string>
+    <string name="call">ደውል</string>
+    <string name="undo">መልስ</string>
+    <string name="yes">አዎ</string>
+    <string name="no">አይደለም</string>
+    <string name="learn_more">ተጨማሪ ይወቁ</string>
+    <string name="open_settings">ቅንብሮችን ክፈት</string>
+    <string name="not_now">አሁን አይደለም</string>
+    <string name="loading">በመጫን ላይ…</string>
+    <string name="unknown">ያልታወቀ</string>
+    <string name="you">እርስዎ</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">ወደ 1 MESSAGES እንኳን በደህና መጡ</string>
+    <string name="onboarding_welcome_body">ለመልዕክቶችዎ ጸጥ ያለ፣ የግል ቦታ። መለያ የለም፣ ደመና የለም፣ ማስታወቂያ የለም — መልዕክቶችዎ በዚህ ስልክ ላይ ይቆያሉ።</string>
+    <string name="onboarding_skip">በኋላ አዘጋጅ</string>
+    <string name="onboarding_permissions_title">ጥቂት ፈቃዶች</string>
+    <string name="onboarding_permissions_body">1 MESSAGES የመልዕክት መተግበሪያዎ እንዲሆን መልዕክት መላክና ማንበብ ይፈልጋል። ለእያንዳንዱ ባህሪ የሚያስፈልገውን ብቻ እንጠይቃለን፣ በኋላ በAndroid ቅንብሮች ማንኛውንም መሻር ይችላሉ።</string>
+    <string name="onboarding_grant_permissions">ፈቃድ ስጥ</string>
+    <string name="onboarding_permission_sms_title">መልዕክቶች</string>
+    <string name="onboarding_permission_sms_body">የጽሑፍ መልዕክቶችን መላክ፣ መቀበልና ማንበብ።</string>
+    <string name="onboarding_permission_contacts_title">እውቂያዎች</string>
+    <string name="onboarding_permission_contacts_body">ከቁጥሮች ይልቅ ስሞችንና ፎቶዎችን ለማሳየት።</string>
+    <string name="onboarding_permission_notifications_title">ማሳወቂያዎች</string>
+    <string name="onboarding_permission_notifications_body">አዲስ መልዕክት ሲመጣ ለማሳወቅና ከማሳወቂያው ላይ መመለስ እንዲቻል።</string>
+    <string name="onboarding_permission_phone_title">የሲም መረጃ</string>
+    <string name="onboarding_permission_phone_body">ባለሁለት ሲም ስልኮች ትክክለኛውን ሲም ለመጠቀም።</string>
+    <string name="onboarding_role_title">1 MESSAGES የመልዕክት መተግበሪያዎ ያድርጉ</string>
+    <string name="onboarding_role_body">Android አንድ መተግበሪያ ብቻ በስርዓቱ የመልዕክት መረጃ ቋት ላይ እንዲጽፍ ይፈቅዳል። 1 MESSAGES ነባሪው የመልዕክት መተግበሪያ ሲሆን የገቡ መልዕክቶችን ያስቀምጣል፣ የንባብ ሁኔታን ያስተዳድራል፣ በአስተማማኝ ሁኔታም ይልካል። ይህ ሚና ሳይኖር መተግበሪያው ያሉትን መልዕክቶች ማንበብና መላክ ይችላል፣ ግን የስርዓቱ የመልዕክት መተግበሪያ መሆን አይችልም።</string>
+    <string name="onboarding_role_set">ነባሪ አድርግ</string>
+    <string name="onboarding_role_done">1 MESSAGES ነባሪ የመልዕክት መተግበሪያዎ ነው</string>
+    <string name="onboarding_finish">መልዕክት መላክ ጀምር</string>
+    <string name="onboarding_not_default">ያለ መልዕክት ሚና በመስራት ላይ</string>
+
+    <!-- Inbox -->
+    <string name="inbox_title">መልዕክቶች</string>
+    <string name="inbox_search_placeholder">መልዕክቶችን፣ ስሞችን ወይም ቁጥሮችን ፈልግ</string>
+    <string name="inbox_filter_all">ሁሉም</string>
+    <string name="inbox_filter_unread">ያልተነበቡ</string>
+    <string name="inbox_filter_starred">ኮከብ</string>
+    <string name="inbox_filter_archived">ማህደር</string>
+    <string name="inbox_filter_unknown">ያልታወቁ</string>
+    <string name="inbox_empty_title">እስካሁን መልዕክት የለም</string>
+    <string name="inbox_empty_body">አንድ ሰው ሲፅፍልዎ ውይይቱ እዚህ ይታያል። መቼም ቢሆን እርስዎም መጀመር ይችላሉ።</string>
+    <string name="inbox_empty_filtered_title">እዚህ ምንም የለም</string>
+    <string name="inbox_empty_filtered_body">አሁን ከዚህ ማጣሪያ ጋር የሚስማማ ውይይት የለም።</string>
+    <string name="inbox_archived_title">ማህደር</string>
+    <string name="inbox_archived_empty">የተመዘገቡ ውይይቶች ከዋናው መልዕክት ሳጥን ውጭ ይቀመጣሉ። እስካሁን ምንም የለም።</string>
+    <string name="inbox_error_title">መልዕክቶችን መጫን አልተቻለም</string>
+    <string name="inbox_error_body">የስርዓቱ የመልዕክት መረጃ ቋት ምላሽ አልሰጠም። የመልዕክት ፈቃድን ያረጋግጡና እንደገና ይሞክሩ።</string>
+    <string name="compose_new">አዲስ መልዕክት</string>
+    <string name="inbox_permission_title">የመልዕክት መዳረሻ ጠፍቷል</string>
+    <string name="inbox_permission_body">1 MESSAGES ውይይቶችዎን እንዲያሳይ የመልዕክት መዳረሻ ፍቀዱ። ፈቃዱ ከተሰጠ መፃፍና መላክ ይችላሉ።</string>
+    <string name="inbox_unread_count">%1$d ያልተነበቡ</string>
+    <string name="inbox_selected_count">%1$d ተመርጠዋል</string>
+    <string name="selected_count">%1$d ተመርጠዋል</string>
+    <string name="inbox_menu_sort">ያልተነበቡን መጀመሪያ አስቀምጥ</string>
+
+    <!-- Conversation -->
+    <string name="conversation_loading">ውይይቱ በመጫን ላይ…</string>
+    <string name="conversation_empty_title">ሰላም በሉ</string>
+    <string name="conversation_empty_body">ከዚህ እውቂያ ጋር እስካሁን መልዕክት የለም። ውይይቱን ለመጀመር ከታች ይፃፉ።</string>
+    <string name="message_placeholder">መልዕክት</string>
+    <string name="message_placeholder_contact">ለ%1$s ይፃፉ</string>
+    <string name="send">ላክ</string>
+    <string name="sending">በመላክ ላይ</string>
+    <string name="sent">ተልኳል</string>
+    <string name="delivered">ደርሷል</string>
+    <string name="failed">አልተላከም</string>
+    <string name="failed_tap_to_retry">አልተላከም · ለመድገም ይንኩ</string>
+    <string name="queued">በሰልፍ ላይ</string>
+    <string name="received">ተቀብሏል</string>
+    <string name="read">ተነብቧል</string>
+    <string name="draft">ረቂቅ</string>
+    <string name="draft_restored">ረቂቅ ተመልሷል</string>
+    <string name="draft_saved">ረቂቅ ተቀምጧል</string>
+    <string name="message_deleted">መልዕክት ጠፍቷል</string>
+    <string name="conversation_deleted">ውይይት ጠፍቷል</string>
+    <string name="conversation_archived">ውይይት ወደ ማህደር ገብቷል</string>
+    <string name="conversation_restored">ውይይት ተመልሷል</string>
+    <string name="conversation_pinned">ወደ ላይ ተሰክቷል</string>
+    <string name="conversation_unpinned">ከላይ ተነስቷል</string>
+    <string name="conversation_muted">ድምጽ ጠፍቷል</string>
+    <string name="conversation_unmuted">ድምጽ ተመልሷል</string>
+    <string name="mark_read">እንደተነበበ ምልክት አድርግ</string>
+    <string name="mark_unread">እንዳልተነበበ ምልክት አድርግ</string>
+    <string name="pin">ሰካ</string>
+    <string name="unpin">ንቀል</string>
+    <string name="mute">ድምጽ አጥፋ</string>
+    <string name="unmute">ድምጽ መልስ</string>
+    <string name="archive">ወደ ማህደር</string>
+    <string name="unarchive">ከማህደር አውጣ</string>
+    <string name="star">ኮከብ አድርግ</string>
+    <string name="unstar">ኮከብ አንሳ</string>
+    <string name="forward">አስተላልፍ</string>
+    <string name="copy_text">ጽሑፉን ቅዳ</string>
+    <string name="message_info">የመልዕክት ዝርዝር</string>
+    <string name="select_messages">መልዕክቶችን ምረጥ</string>
+    <string name="copy_selected">የተመረጡትን ቅዳ</string>
+    <string name="today">ዛሬ</string>
+    <string name="yesterday">ትናንት</string>
+    <string name="search_in_conversation">በውይይቱ ውስጥ ፈልግ</string>
+    <string name="no_search_results">በዚህ ውይይት ውስጥ ተመሳሳይ የለም</string>
+    <string name="smart_replies">የተጠቆሙ</string>
+    <string name="scroll_to_latest">ወደ አዲሱ ሂድ</string>
+    <string name="message_sent_from_sim">በ%1$s ተልኳል</string>
+    <string name="select_messages_hint">ለመምረጥ መልዕክቶችን ይንኩ</string>
+    <string name="composer_chars">%1$d ፊደሎች</string>
+    <string name="composer_segments">%1$d ፊደሎች · %2$d የመልዕክት ክፍሎች</string>
+
+    <!-- Delete confirmations -->
+    <string name="delete_conversation_title">ውይይቱን ያጥፉ?</string>
+    <string name="delete_conversation_body">ይህ ከ%1$s ጋር ያሉትን መልዕክቶች ከዚህ ስልክ ያስወግዳል። በሌሎች መሣሪያዎች ወይም በአገልግሎት አቅራቢዎ ላይ ያሉ ቅጂዎች አይነኩም።</string>
+    <string name="delete_messages_title">መልዕክቶችን ያጥፉ?</string>
+    <string name="delete_messages_body">የተመረጡት መልዕክቶች ከዚህ ስልክ ይወገዳሉ። ይህ እርምጃ መመለስ አይቻልም።</string>
+    <string name="delete_selected_conversations_title">%1$d ውይይቶችን ያጥፉ?</string>
+    <string name="delete_selected_conversations_body">በእነዚህ ውይይቶች ውስጥ ያሉ መልዕክቶች ከዚህ ስልክ ይወገዳሉ። አገልግሎት አቅራቢዎና ሌሎች መሣሪያዎች ቅጂ ሊያስቀምጡ ይችላሉ።</string>
+    <string name="delete_message_body">ይህ መልዕክት ከዚህ ስልክ ይወገዳል።</string>
+
+    <!-- Compose and recipients -->
+    <string name="new_message_title">አዲስ መልዕክት</string>
+    <string name="to">ለ</string>
+    <string name="recipient_hint">ስም ወይም የስልክ ቁጥር</string>
+    <string name="add_recipient">ተቀባይ ጨምር</string>
+    <string name="no_recipients_match">የሚስማማ እውቂያ የለም</string>
+    <string name="send_to_number">ወደ %1$s ላክ</string>
+    <string name="invalid_number">ትክክለኛ የስልክ ቁጥር ያስገቡ</string>
+    <string name="contact_permission_needed">በስም ለመፈለግ የእውቂያ ፈቃድ ይስጡ። ቁጥር መተየብ ግን ሁልጊዜ ይቻላል።</string>
+    <string name="group_recipients_title">የቡድን መልዕክት</string>
+    <string name="group_recipients_body">የቡድን ውይይቶች እንደ MMS ይላካሉ፤ ሞባይል ዳታ ያስፈልጋቸዋል እና ክፍያ ሊያስከፍሉ ይችላሉ። እያንዳንዱ ተቀባይ እንደ አገልግሎት አቅራቢው ሁኔታ በተለያየ መንገድ ሊያገኘው ይችላል።</string>
+    <string name="group_sms_note">ወደ %1$d ቁጥሮች እንደ አንድ ቡድን ለመላክ MMS ያስፈልጋል። አለበለዚያ እያንዳንዱ ተቀባይ የግል መልዕክት ይደርሰዋል።</string>
+    <string name="recipients_selected">%1$d ተቀባዮች</string>
+    <string name="create_group">ቡድን ፍጠር</string>
+
+    <!-- Contacts -->
+    <string name="contacts_title">እውቂያዎች</string>
+    <string name="contacts_search_placeholder">እውቂያዎችን ፈልግ</string>
+    <string name="contacts_empty_title">እውቂያ የለም</string>
+    <string name="contacts_empty_body">በዚህ መሣሪያ ላይ የሚያስቀምጧቸው እውቂያዎች እዚህ ይታያሉ።</string>
+    <string name="contacts_permission_title">እውቂያዎች ተደብቀዋል</string>
+    <string name="contacts_permission_body">ስሞችንና ፎቶዎችን ለመምረጥ የእውቂያ ፈቃድ ይስጡ። ቁጥር መተየብ ሁልጊዜ ይቻላል።</string>
+    <string name="contact_details">የእውቂያ ዝርዝር</string>
+    <string name="contact_message">መልዕክት ላክ</string>
+    <string name="contact_add_to_contacts">ወደ እውቂያዎች ጨምር</string>
+    <string name="contact_open_details">በእውቂያዎች ክፈት</string>
+    <string name="contact_multiple_numbers">%1$d ቁጥሮች</string>
+    <string name="contact_no_number">የስልክ ቁጥር የለም</string>
+    <string name="unknown_sender">ያልታወቀ ላኪ</string>
+    <string name="phone_number_label">የስልክ ቁጥር</string>
+
+    <!-- Starred and search -->
+    <string name="starred_title">ኮከብ የተደረጉ</string>
+    <string name="starred_empty_title">ኮከብ የተደረገ መልዕክት የለም</string>
+    <string name="starred_empty_body">አንድን መልዕክት በረዥም ተጭነው “ኮከብ አድርግ” ይምረጡ።</string>
+    <string name="search_title">ፍለጋ</string>
+    <string name="search_hint">መልዕክቶችንና እውቂያዎችን ፈልግ</string>
+    <string name="search_messages_header">መልዕክቶች</string>
+    <string name="search_contacts_header">እውቂያዎች</string>
+    <string name="search_empty_title">መልዕክቶችዎን ፈልጉ</string>
+    <string name="search_empty_body">በዚህ መሣሪያ ላይ ማንኛውንም ቃል፣ ስም ወይም ቁጥር ያግኙ። ምንም ነገር ከስልክዎ አይወጣም።</string>
+    <string name="search_no_results_title">ውጤት የለም</string>
+    <string name="search_no_results_body">ሌላ ቃል ይሞክሩ ወይም በስልክ ቁጥር ይፈልጉ።</string>
+    <string name="search_date_hint">“ትናንት” ወይም “በዚህ ሳምንት” ይሞክሩ</string>
+    <string name="search_result_count">%1$d ውጤቶች</string>
+
+    <!-- MMS and attachments -->
+    <string name="attach">አያዝ</string>
+    <string name="attach_photo">ፎቶ</string>
+    <string name="attach_video">ቪዲዮ</string>
+    <string name="attach_audio">ድምጽ</string>
+    <string name="attach_contact">እውቂያ</string>
+    <string name="attach_document">ሰነድ</string>
+    <string name="attachment_picker_title">አባሪ ጨምር</string>
+    <string name="attachment_preview">የአባሪ ቅድመ እይታ</string>
+    <string name="attachment_remove">አባሪውን አስወግድ</string>
+    <string name="attachment_too_large">%1$s ከ%2$s የMMS ገደብ ይበልጣል</string>
+    <string name="attachment_unsupported">ይህ የፋይል አይነት በMMS ሊላክ አይችልም</string>
+    <string name="attachment_save">አባሪ አስቀምጥ</string>
+    <string name="attachment_saved">ተቀምጧል</string>
+    <string name="attachment_save_failed">አባሪውን ማስቀመጥ አልተቻለም</string>
+    <string name="attachment_missing">አባሪው በዚህ መሣሪያ ላይ የለም</string>
+    <string name="attachment_failed">አባሪውን መጫን አልተቻለም</string>
+    <string name="mms_not_supported_title">MMS ሞባይል ዳታ ይፈልጋል</string>
+    <string name="mms_not_supported_body">ፎቶዎችን፣ ቪዲዮዎችን ወይም የቡድን መልዕክቶችን መላክ MMS ይፈልጋል፤ እሱም ሞባይል ዳታና የአገልግሎት አቅራቢ ድጋፍ ያስፈልገዋል። ሞባይል ዳታ ያብሩ ወይም ጽሑፍ ብቻ ይላኩ።</string>
+    <string name="mms_send_hint">ይህ እንደ MMS ይላካል (%1$s)</string>
+    <string name="sms_send_hint">SMS</string>
+    <string name="mms_send_hint_none">MMS · ሞባይል ዳታ ይፈልጋል</string>
+    <string name="mms_download">አውርድ</string>
+    <string name="mms_downloaded">ተወርዷል</string>
+    <string name="mms_no_service">ሞባይል ኔትወርክ የለም — አሁን MMS መላክ አይቻልም</string>
+    <string name="mms_pending_download">ይህን የምስል መልዕክት ለማውረድ ይንኩ</string>
+
+    <!-- SIM -->
+    <string name="sim_label">ሲም</string>
+    <string name="sim_default">ነባሪ ሲም</string>
+    <string name="sim_select_title">በየትኛው ይላኩ</string>
+    <string name="sim_number">ሲም %1$d · %2$s</string>
+    <string name="sim_number_short">ሲም %1$d</string>
+    <string name="sim_unknown">ያልታወቀ ሲም</string>
+    <string name="sim_none">ሲም ካርድ የለም</string>
+    <string name="sim_none_title">ሲም ካርድ አልተገኘም</string>
+    <string name="sim_none_body">መልዕክቶችዎን ማንበብ ይችላሉ። SMS ወይም MMS ለመላክ ሲም ካርድ ያስገቡና ሬዲዮው መብራቱን ያረጋግጡ።</string>
+    <string name="sim_airplane_title">የአውሮፕላን ሁነታ በርቷል</string>
+    <string name="sim_airplane_body">የአውሮፕላን ሁነታ ሳለ SMS መላክ አይቻልም። መልዕክቶች በሰልፍ ይቆያሉ፤ አገልግሎት ሲመለስ እንደገና መሞከር ይቻላል።</string>
+    <string name="sim_no_service_title">አገልግሎት የለም</string>
+    <string name="sim_no_service_body">የአገልግሎት አቅራቢዎ ኔትወርክ አይደርስም። መልዕክቱ ተቀምጧል፤ እንደገና መሞከር ይቻላል።</string>
+    <string name="sim_permission_needed">የሲም ካርዶችን ለመዘርዘር የስልክ ሁኔታ ፈቃድ ይስጡ። ነባሪው ሲም ይጠቀማል።</string>
+    <string name="sim_settings_title">ሲምና መላክ</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_messages">መልዕክቶች</string>
+    <string name="notif_channel_messages_desc">ለአዲስ የጽሑፍና የምስል መልዕክቶች ማሳወቂያ</string>
+    <string name="notif_channel_reminders">አስታዋሾች</string>
+    <string name="notif_channel_reminders_desc">ያልተነበቡ ውይይቶች ገር አስታዋሽ</string>
+    <string name="notif_channel_service">የመላክ ሁኔታ</string>
+    <string name="notif_channel_service_desc">ስለ አልተላኩ መልዕክቶች ዝቅተኛ ቅድሚያ ማሳወቂያ</string>
+    <string name="notif_reply_label">መልስ</string>
+    <string name="notif_mark_read">እንደተነበበ አድርግ</string>
+    <string name="notif_new_message">አዲስ መልዕክት</string>
+    <string name="notif_messages_count">%1$d አዲስ መልዕክቶች</string>
+    <string name="notif_subject_group">የቡድን መልዕክት</string>
+    <string name="notif_send_failed_title">መልዕክት አልተላከም</string>
+    <string name="notif_send_failed_body">ለመመርመርና እንደገና ለመሞከር ይንኩ</string>
+    <string name="notif_summary">መልዕክቶች</string>
+    <string name="notif_hidden_preview">አዲስ መልዕክት</string>
+    <string name="notif_permission_needed">ማሳወቂያዎች ጠፍተዋል</string>
+    <string name="notif_permission_body">መተግበሪያውን ሳይከፍቱ አዲስ መልዕክቶችን ለማየት ማሳወቂያ ይፍቀዱ።</string>
+    <string name="notif_enable">ማሳወቂያ አብራ</string>
+    <string name="notif_test_title">የሙከራ ማሳወቂያ</string>
+    <string name="notif_test_body">ይህን ማየት ከቻሉ ማሳወቂያዎች ይሰራሉ። ቅንብሮችዎን ለማየት በረዥም ይጫኑ።</string>
+    <string name="notif_test_action">የሙከራ ማሳወቂያ ላክ</string>
+    <string name="notif_preview_title">ቅድመ እይታ</string>
+    <string name="notif_reminder_title">ካልተነበበ መልዕክት ከ%1$s</string>
+    <string name="notif_reminder_body">ይህን ውይይት እስካሁን አልከፈቱትም።</string>
+    <string name="notif_mark_all_read">ሁሉንም እንደተነበበ አድርግ</string>
+
+    <!-- Settings -->
+    <string name="settings_title">ቅንብሮች</string>
+    <string name="settings_appearance">ገጽታ</string>
+    <string name="settings_appearance_summary">ገጽታ፣ ቀለሞች፣ አረፋዎች፣ የፊደል መጠን፣ መጠናኛ</string>
+    <string name="settings_notifications">ማሳወቂያዎች</string>
+    <string name="settings_notifications_summary">ድምጾች፣ ንዝረት፣ ግላዊነት፣ የጸጥታ ሰዓቶች</string>
+    <string name="settings_privacy">ግላዊነትና ደህንነት</string>
+    <string name="settings_privacy_summary">የመተግበሪያ መቆለፊያ፣ የይዘት ግላዊነት፣ ፈቃዶች</string>
+    <string name="settings_sim">ሲምና መልዕክት</string>
+    <string name="settings_sim_summary">ነባሪ ሲም፣ የSMS አማራጮች፣ የመላክ ሪፖርቶች</string>
+    <string name="settings_organization">ብልህ ማደራጀት</string>
+    <string name="settings_organization_summary">ምድቦች፣ ቁልፍ ቃላትና የOTP መለየት</string>
+    <string name="settings_backup">ምትኬና መመለስ</string>
+    <string name="settings_backup_summary">የተመሰጠረ የቅንብሮች ቅጂ አውጣ</string>
+    <string name="settings_storage">ማከማቻና ምርመራ</string>
+    <string name="settings_storage_summary">የተያዘው ቦታና የስህተት መዝገብ</string>
+    <string name="settings_about">ስለ</string>
+    <string name="settings_about_summary">ስሪት፣ ፈቃዶች፣ የግላዊነት መግለጫ</string>
+    <string name="settings_default_role">ነባሪ የመልዕክት መተግበሪያ</string>
+    <string name="settings_default_role_active">1 MESSAGES ነባሪ የመልዕክት መተግበሪያዎ ነው</string>
+    <string name="settings_default_role_inactive">1 MESSAGES ነባሪ የመልዕክት መተግበሪያዎ አይደለም</string>
+    <string name="settings_default_role_body">የገቡ መልዕክቶችን ለማስቀመጥና በስርዓቱ መረጃ ቋት ውስጥ የንባብ ሁኔታን ለማስተዳደር ያስፈልጋል።</string>
+    <string name="settings_default_role_cta">ነባሪ የመልዕክት መተግበሪያ አድርግ</string>
+    <string name="settings_section_general">አጠቃላይ</string>
+    <string name="settings_section_data">ውሂብ</string>
+    <string name="settings_section_about">ስለ</string>
+    <string name="settings_version">ስሪት %1$s (%2$d)</string>
+    <string name="settings_legal">መለያ የለም፣ ትንታኔ የለም፣ ማስታወቂያ የለም።</string>
+
+    <!-- Appearance -->
+    <string name="appearance_theme">ገጽታ</string>
+    <string name="appearance_theme_system">ስርዓት</string>
+    <string name="appearance_theme_light">ብሩህ</string>
+    <string name="appearance_theme_dark">ጨለማ</string>
+    <string name="appearance_accent">የድምፅ ቀለም</string>
+    <string name="appearance_accent_violet">ኤሌክትሪክ ቫዮሌት</string>
+    <string name="appearance_accent_sky">ሰማያዊ</string>
+    <string name="appearance_accent_mint">ሚንት</string>
+    <string name="appearance_accent_coral">ኮራል</string>
+    <string name="appearance_accent_amber">አምበር</string>
+    <string name="appearance_accent_rose">ሮዝ</string>
+    <string name="appearance_bubble_style">የአረፋ ቀለሞች</string>
+    <string name="appearance_bubble_accent">የቀለም ድምፅ</string>
+    <string name="appearance_bubble_surface">ገለልተኛ ወለል</string>
+    <string name="appearance_bubble_high_contrast">ከፍተኛ ንፅፅር</string>
+    <string name="appearance_font_size">የፊደል መጠን</string>
+    <string name="appearance_density">የውይይት መጠናኛ</string>
+    <string name="appearance_density_compact">ጠቅልል</string>
+    <string name="appearance_density_cozy">ምቹ</string>
+    <string name="appearance_density_comfortable">ሰፊ</string>
+    <string name="appearance_reduced_motion">እንቅስቃሴ ቀንስ</string>
+    <string name="appearance_reduced_motion_body">የመልዕክትና የአሰሳ እንቅስቃሴዎችን ያጠፋል።</string>
+    <string name="appearance_haptics">የንክኪ ምላሽ</string>
+    <string name="appearance_haptics_body">መልዕክት ሲላኩ አጭር ንዝረት።</string>
+    <string name="appearance_wallpaper">የውይይት ዳራ</string>
+    <string name="appearance_wallpaper_plain">ቀላል</string>
+    <string name="appearance_wallpaper_soft">ለስላሳ ግራዲየንት</string>
+    <string name="appearance_example">ቅድመ እይታ</string>
+    <string name="appearance_language">የመተግበሪያ ቋንቋ</string>
+    <string name="appearance_language_system">የስርዓቱ ነባሪ</string>
+    <string name="appearance_show_avatars">የእውቂያ ፎቶዎች አሳይ</string>
+    <string name="appearance_avatars_body">የእውቂያ ፈቃድ ሲሰጥ የእውቂያ ፎቶዎችን ይጠቀማል።</string>
+    <string name="language_english">English</string>
+    <string name="language_amharic">አማርኛ</string>
+    <string name="language_note">ቋንቋ መቀየር የመተግበሪያውን ገጽታ ዳግም ያስጀምራል። የስርዓት መልዕክቶች መሣሪያዎ በሚጠቀመው ቋንቋ ይቆያሉ።</string>
+
+    <!-- Notification settings -->
+    <string name="notif_settings_new_messages">የአዲስ መልዕክት ማሳወቂያ</string>
+    <string name="notif_settings_new_messages_body">ሁሉንም የገቡ መልዕክቶች ማሳወቂያ ለማጥፋት ያጥፉት።</string>
+    <string name="notif_settings_preview">የመልዕክት ቅድመ እይታ አሳይ</string>
+    <string name="notif_settings_preview_body">ሲጠፋ ማሳወቂያዎች ላኪውን ብቻ ያሳያሉ።</string>
+    <string name="notif_settings_lock_screen">ይዘትን በመቆለፊያ ማያ ገጽ ደብቅ</string>
+    <string name="notif_settings_lock_screen_body">መሣሪያው ተቆልፎ ሳለ ቅድመ እይታዎች ይደበቃሉ።</string>
+    <string name="notif_settings_group">ውይይቶችን በማሳወቂያ አስተባብር</string>
+    <string name="notif_settings_group_body">ማሳወቂያዎችን በውይይት አሰባስብ።</string>
+    <string name="notif_settings_sound">የማሳወቂያ ድምጽ</string>
+    <string name="notif_settings_vibration">ንዝረት</string>
+    <string name="notif_settings_vibration_body">መልዕክት ሲመጣ ያራዝመዋል።</string>
+    <string name="notif_settings_reminders">ያልተነበቡ አስታዋሾች</string>
+    <string name="notif_settings_reminders_body">ያልተነበቡ መልዕክቶች አንድ ጸጥ ያለ አስታዋሽ።</string>
+    <string name="notif_settings_reminder_delay">ከዚህ በኋላ አስታውስ</string>
+    <string name="notif_settings_quiet_hours">የጸጥታ ሰዓቶች</string>
+    <string name="notif_settings_quiet_hours_body">በዕለታዊ ሰዓት ክልል ማሳወቂያዎችን ያጥፋል። Android “አትረብሽ” ሁልጊዜ ቅድሚያ ይኖረዋል።</string>
+    <string name="notif_settings_quiet_start">መጀመሪያ</string>
+    <string name="notif_settings_quiet_end">መጨረሻ</string>
+    <string name="notif_settings_quiet_enabled">የጸጥታ ሰዓቶችን አብራ</string>
+    <string name="notif_settings_priority">ቅድሚያ ያላቸው ውይይቶች</string>
+    <string name="notif_settings_priority_body">የተሰኩ ውይይቶች በጸጥታ ሰዓት እንዲያሳውቁ ፍቀድ።</string>
+    <string name="notif_settings_system">የAndroid ማሳወቂያ ቅንብሮች</string>
+    <string name="notif_settings_system_body">ድምጾች፣ ቻናሎችና “አትረብሽ” በAndroid ይቆጣጠራሉ።</string>
+    <string name="notif_settings_open_system">የAndroid ቅንብሮችን ክፈት</string>
+    <string name="notif_settings_dnd_title">“አትረብሽ” በርቷል</string>
+    <string name="notif_settings_dnd_body">Android ከመተግበሪያ ቅንብሮች ይልቅ ማሳወቂያዎችዎን ጸጥ ያደርጋቸዋል።</string>
+    <string name="notif_delay_15">15 ደቂቃ</string>
+    <string name="notif_delay_30">30 ደቂቃ</string>
+    <string name="notif_delay_60">1 ሰዓት</string>
+    <string name="notif_delay_180">3 ሰዓት</string>
+
+    <!-- Privacy -->
+    <string name="privacy_app_lock">የመተግበሪያ መቆለፊያ</string>
+    <string name="privacy_app_lock_body">1 MESSAGES ለመክፈት የጣት አሻራዎን ወይም የመሣሪያ ፒንዎን ይፈልጋል። ይህ መተግበሪያውን ብቻ ይቆልፋል፣ የስርዓቱን የመልዕክት መረጃ ቋት አይደለም።</string>
+    <string name="privacy_app_lock_enable">የመተግበሪያ መቆለፊያ አብራ</string>
+    <string name="privacy_app_lock_unavailable">የመተግበሪያ መቆለፊያን ለመጠቀም በመጀመሪያ የማያ ገጽ መቆለፊያ ያዘጋጁ።</string>
+    <string name="privacy_lock_title">1 MESSAGES ተቆልፏል</string>
+    <string name="privacy_lock_body">መልዕክቶችዎን ለማየት ይክፈቱ።</string>
+    <string name="privacy_lock_unlock">ክፈት</string>
+    <string name="privacy_lock_subtitle">የጣት አሻራ ወይም የማያ ገጽ መቆለፊያ ይጠቀሙ</string>
+    <string name="privacy_lock_failed">ማረጋገጥ አልተቻለም። እንደገና ይሞክሩ።</string>
+    <string name="privacy_hide_preview">ስሱ ይዘትን ደብቅ</string>
+    <string name="privacy_hide_preview_body">የመልዕክት ጽሑፍን በመቆለፊያ ማያ ገጽ ላይ በፍጹም አታሳይ።</string>
+    <string name="privacy_otp_detection">የማረጋገጫ ኮዶችን ለይ</string>
+    <string name="privacy_otp_detection_body">በአንድ ጊዜ ብቻ የሚሰሩ ኮዶችን በዚህ መሣሪያ ላይ ፈልገው በፍጥነት እንዲቀዱ። ኮዶች ወደ የትም አይላኩም፣ በራስ-ሰርም አይጻፉም።</string>
+    <string name="privacy_hide_otp">እስኪነኩ ድረስ ኮዶችን ደብቅ</string>
+    <string name="privacy_hide_otp_body">እርስዎ እስኪነኩት ድረስ ኮዶች ተደብቀው ይቆያሉ።</string>
+    <string name="privacy_permissions">ፈቃዶች</string>
+    <string name="privacy_permissions_body">1 MESSAGES ምን ማግኘት እንደሚችል ይገምግሙ። በAndroid ቅንብሮች ማንኛውንም ፈቃድ መሻር ይችላሉ።</string>
+    <string name="privacy_delete_all">ሁሉንም የመተግበሪያ ውሂብ አጥፋ</string>
+    <string name="privacy_delete_all_body">የዚህን መተግበሪያ ስክፒኖች፣ ረቂቆች፣ ምድቦችና ቅንብሮች ያስወግዳል። የስርዓቱ መልዕክቶች በAndroid ይተዳደራሉ፤ እዚህ አይጠፉም።</string>
+    <string name="privacy_delete_all_confirm">የመተግበሪያ ውሂብ ይጽዳ?</string>
+    <string name="privacy_delete_all_done">የመተግበሪያ መረጃ ጽድቷል</string>
+    <string name="privacy_no_upload">መልዕክቶችዎ ከዚህ ስልክ አይወጡም። አገልጋይ የለም፣ መለያ የለም፣ ትንታኔም የለም።</string>
+    <string name="privacy_threat_model">የግላዊነት ዝርዝሮች</string>
+    <string name="privacy_threat_model_body">1MESSAGES ከAndroid የመልዕክት መዳረሻ ይጠይቃል፤ ማለትም ነባሪ የመልዕክት ሚና ያላቸው መተግበሪያዎች ጽሑፎችዎን ማንበብ ይችላሉ። Android ይህን ውሂብ በመተግበሪያ ሳጥንና በመሣሪያ ምስጠራ ይጠብቃል፣ በተለየ የይለፍ ቃል አይደለም። የመተግበሪያ መቆለፊያ ያልተፈቀደ መዳረሻን ይከላከላል፣ ግን ስርዓቱ ቀድሞ ያሳየውን የማሳወቂያ ይዘት መደበቅ አይችልም። ውይይት ማጥፋት በአካባቢው ያለውን ቅጂ ያስወግዳል፤ አገልግሎት አቅራቢዎ ወይም ተቀባዩ ግን ሊያስቀምጠው ይችላል።</string>
+
+    <!-- Organization -->
+    <string name="org_categories">የመልዕክት ሳጥን ምድቦች</string>
+    <string name="org_categories_body">ውይይቶችን ወደ የግል፣ ስራ፣ ግብይት፣ ማረጋገጫና ያልታወቀ ይለያል። ደንቦቹ በዚህ መሣሪያ ላይ ብቻ ይሰራሉ።</string>
+    <string name="org_enable">ምድቦችን አብራ</string>
+    <string name="org_otp_enable">የማረጋገጫ ኮዶችን ለይ</string>
+    <string name="org_hide_codes">እስኪነኩ ድረስ አሃዞችን ደብቅ</string>
+    <string name="org_rules">የቁልፍ ቃል ደንቦች</string>
+    <string name="org_rules_body">እነዚህን ቃላት የያዙ መልዕክቶች ምድብ ያገኛሉ። ደንቦቹ ሊመለሱ የሚችሉ ጥቆማዎች ናቸው።</string>
+    <string name="org_add_rule">ደንብ ጨምር</string>
+    <string name="org_rule_keyword">ቁልፍ ቃል ወይም ላኪ ይይዛል</string>
+    <string name="org_rule_category">ምድብ</string>
+    <string name="org_rule_delete">ደንብ አጥፋ</string>
+    <string name="org_no_rules">እስካሁን ደንብ የለም። ነባሪ ደንቦች የተለመዱ የOTPና የባንክ አባባሎችን ይሸፍናሉ።</string>
+    <string name="org_category_personal">የግል</string>
+    <string name="org_category_work">ስራ</string>
+    <string name="org_category_transactions">ግብይቶች</string>
+    <string name="org_category_otp">ማረጋገጫ</string>
+    <string name="org_category_unknown">ያልታወቀ ላኪ</string>
+    <string name="org_disclaimer">ምድቦች በቃላት ላይ የተመሰረተ የአካባቢ ግምት ናቸው። የባንክ ማሳወቂያ የመሰለ መልዕክት ከባንክዎ የመጣ መሆኑን ማረጋገጫ አይደለም። ያልጠየቁትን አገናኞች ወይም ኮዶች በፍጹም አይተግብሩ።</string>
+    <string name="org_txn_warning">የገንዘብ አባባል ተገኝቷል። ከመስራትዎ በፊት በኦፊሴላዊ መንገድ ከባንክዎ ያረጋግጡ።</string>
+    <string name="otp_detected">የማረጋገጫ ኮድ</string>
+    <string name="otp_copy">ኮዱን ቅዳ</string>
+    <string name="otp_show">ኮዱን አሳይ</string>
+    <string name="otp_copied">ኮድ ተቀድቷል</string>
+    <string name="otp_warning">የጠየቁትን ኮዶች ብቻ ይጠቀሙ። 1MESSAGES ኮዶችን ለእርስዎ አያስገባም።</string>
+
+    <!-- Backup and storage -->
+    <string name="backup_title">ምትኬና መመለስ</string>
+    <string name="backup_export">የመተግበሪያ ውሂብ አውጣ</string>
+    <string name="backup_export_body">ስክፒኖችዎን፣ ረቂቆችዎን፣ ምድቦችዎን፣ ደንቦችዎንና ቅንብሮችዎን የያዘ የተመሰጠረ ፋይል ይፈጥራል። መልዕክቶቹ ራሳቸው በAndroid መረጃ ቋት ውስጥ ይቆያሉ፤ አይቀዱም።</string>
+    <string name="backup_export_password">የይለፍ ቃል ይምረጡ</string>
+    <string name="backup_export_password_body">ቢያንስ 8 ፊደሎች። ያለሱ ፋይሉ ሊከፈት አይችልም — መመለሻ የለም።</string>
+    <string name="backup_export_action">የተመሰጠረ ምትኬ ፍጠር</string>
+    <string name="backup_export_success">ምትኬ ተቀምጧል</string>
+    <string name="backup_export_failed">ምትኬ አልተሳካም</string>
+    <string name="backup_password_short">ቢያንስ 8 ፊደሎች ይጠቀሙ</string>
+    <string name="backup_import">ከፋይል መልስ</string>
+    <string name="backup_import_body">የ1MESSAGES ምትኬ ፋይል ይምረጡና የይለፍ ቃሉን ያስገቡ። ያሉት ስክፒኖችና ቅንብሮች ይተካሉ።</string>
+    <string name="backup_import_action">መልስ</string>
+    <string name="backup_import_success">%1$d ውይይቶች ተመልሰዋል</string>
+    <string name="backup_import_failed">ያንን ፋይል መመለስ አልተቻለም</string>
+    <string name="backup_wrong_password">የተሳሳተ የይለፍ ቃል ወይም የተበላሸ ፋይል</string>
+    <string name="backup_format">ቅርጸት %1$s</string>
+    <string name="backup_privacy">ምትኬዎች በAES-256-GCM እና ከይለፍ ቃልዎ በPBKDF2 በተመነጨ ቁልፍ ይመሰጠራሉ። ፋይሉ ደህንነቱ እንደ የይለፍ ቃልዎ ጥንካሬ ነው።</string>
+    <string name="backup_clear_data">የአካባቢ ውሂብ አጥፋ</string>
+    <string name="storage_database">የመተግበሪያ መረጃ ቋት</string>
+    <string name="storage_preferences">ቅንብሮች</string>
+    <string name="storage_attachments">የተሸጎጡ አባሪዎች</string>
+    <string name="storage_total">ጠቅላላ የመተግበሪያ ማከማቻ</string>
+    <string name="storage_clear_cache">የተሸጎጡ አባሪዎችን አጽዳ</string>
+    <string name="storage_cleared">ማህደረ ትውስታ ጽድቷል</string>
+    <string name="diagnostics">ምርመራ</string>
+    <string name="diagnostics_body">የቴክኒክ ክስተቶች የአካባቢ መዝገብ። የመልዕክት ጽሑፍ፣ ቁጥሮች ወይም ኮዶች እዚህ በፍጹም አይፃፉም።</string>
+    <string name="diagnostics_clear">መዝገቡን አጽዳ</string>
+    <string name="diagnostics_empty">እስካሁን ምንም አልተመዘገበም።</string>
+    <string name="diagnostics_export">መዝገቡን ቅዳ</string>
+    <string name="diagnostics_sms_role">የመልዕክት ሚና</string>
+    <string name="diagnostics_default_sms">ነባሪ የመልዕክት መተግበሪያ</string>
+    <string name="diagnostics_sims">የተገኙ ሲሞች</string>
+    <string name="diagnostics_radio">የሬዲዮ ሁኔታ</string>
+    <string name="diagnostics_copied">መዝገቡ ተቀድቷል</string>
+
+    <!-- About -->
+    <string name="about_title">ስለ 1MESSAGES</string>
+    <string name="about_body">1MESSAGES ከመስመር ውጭ የሚሰራ የመልዕክት መተግበሪያ ነው። መለያ፣ አገልጋይና ማስታወቂያ የለውም። መልዕክቶችዎ በስርዓተ ክወናው በሚጠበቀው የAndroid የመልዕክት መረጃ ቋት ውስጥ ይኖራሉ።</string>
+    <string name="about_privacy_policy">የግላዊነት መግለጫ</string>
+    <string name="about_privacy_policy_body">ምንም አንሰበስብም። ይህ መተግበሪያ የኢንተርኔት ፈቃድ የለውም፤ ስለዚህ ማንኛውም መልዕክት፣ እውቂያ ወይም የአጠቃቀም ውሂብ ሊላክ አይችልም። የብልሽት ሪፖርት ተሰናክሏል።</string>
+    <string name="about_licenses">የክፍት ምንጭ ፈቃዶች</string>
+    <string name="about_licenses_body">በJetpack Compose፣ Kotlin፣ Room፣ DataStore፣ Hilt እና WorkManager በApache License 2.0 የተገነባ።</string>
+    <string name="about_contact">ይህ ቅድመ ቅጂ ለግምገማ የተዘጋጀ ነው።</string>
+    <string name="about_oss">ፈቃዶችን አሳይ</string>
+    <string name="about_debug_build">የልማት ቅድመ ቅጂ</string>
+    <string name="about_permissions">የተጠቀሙ ፈቃዶች</string>
+
+    <!-- States -->
+    <string name="error_generic">የተሳሳተ ነገር ተከስቷል</string>
+    <string name="error_try_again">ለመሞከር ይንኩ</string>
+    <string name="error_sms_failed">መልዕክቱ ሊላክ አልቻለም። ሲግናልዎንና ሲምዎን ያረጋግጡ፣ ከዚያ እንደገና ይሞክሩ።</string>
+    <string name="error_no_sim">ሲም ካርድ አልተገኘም</string>
+    <string name="error_radio_off">ሬዲዮ ጠፍቷል — አገልግሎት ሲኖር እንደገና ይሞክሩ</string>
+    <string name="error_sms_too_long">መልዕክቱ ለመላክ በጣም ረጅም ነው</string>
+    <string name="error_no_default_sms">1MESSAGES ነባሪ የመልዕክት መተግበሪያ ስላልሆነ ይህ መልዕክት በሌሎች መተግበሪያዎች ላይ ላይታይ ይችላል</string>
+    <string name="permission_denied_title">ፈቃድ ያስፈልጋል</string>
+    <string name="permission_denied_body">ይህ ባህሪ የካዱትን ፈቃድ ይፈልጋል። በማንኛውም ጊዜ በAndroid ቅንብሮች መስጠት ይችላሉ።</string>
+    <string name="permission_denied_permanently">ይህን ፈቃድ ከውድቅ አድርገዋል። ለመስጠት የAndroid ቅንብሮችን ይክፈቱ።</string>
+    <string name="search_permission_sms">ፍለጋ የመልዕክት ፈቃድ ይፈልጋል</string>
+    <string name="permission_denied_short">አልተሰጠም</string>
+    <string name="permission_granted">ተሰጥቷል</string>
+    <string name="read_unread_body">ውይይት ሲከፍቱ መልዕክቶቹ እንደተነበቡ ይቆጠራሉ።</string>
+    <string name="refresh_short">አድስ</string>
+
+    <!-- Accessibility descriptions -->
+    <string name="cd_contact_avatar">የ%1$s መገለጫ ምስል</string>
+    <string name="cd_unread_badge">%1$d ያልተነበቡ መልዕክቶች</string>
+    <string name="cd_pinned">የተሰካ ውይይት</string>
+    <string name="cd_muted">ድምጹ የጠፋ ውይይት</string>
+    <string name="cd_attachment">አባሪ፡ %1$s</string>
+    <string name="cd_send_message">መልዕክት ላክ</string>
+    <string name="cd_message_from_you">ከእርስዎ የተላከ መልዕክት፡ %1$s</string>
+    <string name="cd_message_from_them">ከ%1$s የመጣ መልዕክት፡ %2$s</string>
+    <string name="cd_open_conversation">ከ%1$s ጋር ውይይት ክፈት</string>
+    <string name="cd_selected">ተመርጧል</string>
+    <string name="cd_not_selected">አልተመረጠም</string>
+    <string name="cd_starred">ኮከብ ተደርጓል</string>
+    <string name="cd_failed_send">መላክ አልተሳካም። ለመድገም ይንኩ።</string>
+    <string name="cd_app_logo">የ1Messages አርማ</string>
+    <string name="cd_more_options">ለ%1$s ተጨማሪ አማራጮች</string>
+    <string name="cd_new_message">አዲስ መልዕክት ፃፍ</string>
+
+    <!-- Per-conversation -->
+    <string name="per_conversation_title">የውይይት ቅንብሮች</string>
+    <string name="per_conversation_notifications">ማሳወቂያዎች</string>
+    <string name="per_conversation_sound">የማሳወቂያ ድምጽ</string>
+    <string name="per_conversation_default_sound">ነባሪ</string>
+    <string name="per_conversation_priority">ቅድሚያ</string>
+    <string name="per_conversation_priority_body">ይህ ውይይት በጸጥታ ሰዓት እንዲያሳውቅ ፍቀድ።</string>
+    <string name="per_conversation_block">ላኪውን አግድ</string>
+    <string name="per_conversation_block_body">የታገዱ ላኪዎች ይደበቃሉ፣ ማሳወቂያም አይሰጡም። የAndroid ራሱ ግድ አሁንም ይሰራል።</string>
+    <string name="per_conversation_blocked">ላኪው ታግዷል</string>
+    <string name="per_conversation_unblock">ላኪውን ክፈት</string>
+    <string name="blocked_senders">የታገዱ ላኪዎች</string>
+    <string name="blocked_senders_empty">የታገደ ላኪ የለም</string>
+    <string name="blocked_sender_hidden">የታገደ መልዕክት</string>
+    <string name="unblock">ክፈት</string>
+
+    <!-- MMS notice -->
+    <string name="mms_received_title">የመልቲሚዲያ መልዕክት ጠብቆ ይጠብቃል</string>
+    <string name="mms_received_body">የምስል ወይም የቡድን መልዕክት መጥቷል። ይህ ቅድመ ቅጂ አዲስ MMS ማሳየት አይችልም፤ Android ለሶስተኛ ወገን መተግበሪያዎች የሚያስፈልገውን ተንታኝ ወይም የመረጃ ቋት መጻፍ ፈቃድ አያቀርብም። ላኪው እንደ ጽሑፍ እንዲልክ ይጠይቁ ወይም የአገልግሎት አቅራቢዎን የመልዕክት መተግበሪያ ይጠቀሙ።</string>
+
+    <string name="you_me">እርስዎ</string>
+    <string name="settings_permissions_section">ፈቃዶች</string>
+    <string name="sim_settings_default">የሚመረጥ ሲም</string>
+    <string name="sim_settings_default_body">ውይይቱ ሲም ሳይመርጥ ሲቀር ይጠቀማል።</string>
+    <string name="sim_settings_ask">በየጊዜው ጠይቅ</string>
+    <string name="sim_settings_delivery_reports">የመላክ ሪፖርቶችን ጠይቅ</string>
+    <string name="sim_settings_delivery_reports_body">አገልግሎት አቅራቢዎ ሊያስከፍል ይችላል፤ ሁሉም አቅራቢዎች አይደግፉትም።</string>
+    <string name="sim_settings_multipart">የረጅም መልዕክት አያያዝ</string>
+    <string name="sim_settings_multipart_body">ከ160 ፊደሎች በላይ ያሉ መልዕክቶች በAndroid ብዙ ክፍል API ይከፈላሉ።</string>
+    <string name="sim_settings_retry">ያልተላኩትን በራስ-ሰር ድገም</string>
+    <string name="sim_settings_retry_body">ሬዲዮው ጊዜያዊ ችግር ሲያሳውቅ አንድ ጊዜ ይደግማል።</string>
+    <string name="sim_settings_mms">MMS በሞባይል ዳታ</string>
+    <string name="sim_settings_mms_body">የMMS መድረስ በአገልግሎት አቅራቢ ውቅርና በሞባይል ዳታ ላይ የተመሰረተ ነው። 1MESSAGES ይህን ለAndroid የቴሌፎኒ አገልግሎት ያስረክባል።</string>
+    <string name="sim_settings_sms_only">ጽሑፍ ብቻ</string>
+    <string name="sim_settings_auto_download">የገቡ MMS በራስ-ሰር አውርድ</string>
+    <string name="sim_settings_auto_download_body">ለመንካት ከመጠበቅ ይልቅ የምስል መልዕክቶችን በራስ-ሰር ያወርዳል።</string>
+    <string name="sim_settings_group_mms">የቡድን መልዕክት</string>
+    <string name="sim_settings_group_mms_body">አገልግሎት አቅራቢው ሲደግፍ የቡድን ውይይቶችን እንደ MMS ላክ።</string>
+    <string name="sim_settings_manage_sims">የሲም ካርዶች</string>
+    <string name="sim_settings_manage_sims_body">የትኛው ሲም እንዲሰራ Android ይወስናል። ለመቀየር የስርዓቱን ቅንብሮች ይክፈቱ።</string>
+    <string name="sim_settings_open_system">የሲም ቅንብሮችን ክፈት</string>
+    <string name="sim_settings_signature">ፊርማ</string>
+    <string name="sim_settings_signature_body">በእያንዳንዱ አዲስ መልዕክት መጨረሻ ላይ ይጨመራል።</string>
+    <string name="error_rate_limited">በአንድ ጊዜ ብዙ መልዕክቶች። ትንሽ ይጠብቁ።</string>
+    <string name="time_just_now">አሁን</string>
+    <string name="time_minutes_ago">%1$dደ</string>
+    <string name="time_hours_ago">%1$ሰ</string>
+    <string name="date_today">ዛሬ</string>
+    <string name="date_yesterday">ትናንት</string>
+    <string name="otp_masked_hint">ኮዱን ለማየት ይንኩ</string>
+    <string name="sms_only_notice">ጽሑፍ ብቻ</string>
+    <string name="conversation_sim_changed">በሌላ ሲም በመላክ ላይ</string>
+    <plurals name="conversations_deleted">
+        <item quantity="one">%1$d ውይይት ጠፍቷል</item>
+        <item quantity="other">%1$d ውይይቶች ጠፍተዋል</item>
+    </plurals>
+    <plurals name="notif_unread_messages">
+        <item quantity="one">%1$d ያልተነበበ መልዕክት</item>
+        <item quantity="other">%1$d ያልተነበቡ መልዕክቶች</item>
+    </plurals>
+    <string name="storage_usage_value">%1$s</string>
+    <string name="privacy_lock_continue">ያለ የመተግበሪያ መቆለፊያ ክፈት</string>
+</resources>

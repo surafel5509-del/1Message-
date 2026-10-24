@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Only the MMS scratch directory is shared, never the whole app sandbox. -->
+    <cache-path name="mms" path="mms/" />
+</paths>

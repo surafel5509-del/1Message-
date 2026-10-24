@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_violet">#FF6D4AFF</color>
+    <color name="brand_violet_dark">#FFB9A6FF</color>
+    <color name="brand_sky">#FF2E9BFF</color>
+    <color name="midnight">#FF0B0B12</color>
+    <color name="charcoal">#FF12121B</color>
+    <color name="off_white">#FFF8F7FC</color>
+    <color name="launcher_background">#FF0B0B12</color>
+    <color name="transparent">#00000000</color>
+</resources>

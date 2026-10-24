@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+
+    <string name="app_name">1Messages</string>
+    <string name="app_name_brand">1 MESSAGES</string>
+    <string name="app_tagline">Private, fast, offline messaging</string>
+
+    <!-- Navigation -->
+    <string name="nav_chats">Chats</string>
+    <string name="nav_contacts">Contacts</string>
+    <string name="nav_starred">Starred</string>
+    <string name="nav_settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+    <string name="retry">Retry</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="continue_label">Continue</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="more">More options</string>
+    <string name="search">Search</string>
+    <string name="clear">Clear</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Copied</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    <string name="call">Call</string>
+    <string name="undo">Undo</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="learn_more">Learn more</string>
+    <string name="open_settings">Open settings</string>
+    <string name="not_now">Not now</string>
+    <string name="loading">Loading…</string>
+    <string name="unknown">Unknown</string>
+    <string name="you">You</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to 1 MESSAGES</string>
+    <string name="onboarding_welcome_body">A calm, private place for your texts. No account, no cloud, no ads — your messages stay on this phone.</string>
+    <string name="onboarding_skip">Set up later</string>
+    <string name="onboarding_permissions_title">A few permissions</string>
+    <string name="onboarding_permissions_body">1 MESSAGES needs to send and read SMS to be your messaging app. We ask only for what each feature needs, and you can revoke anything later in Android settings.</string>
+    <string name="onboarding_grant_permissions">Grant permissions</string>
+    <string name="onboarding_permission_sms_title">SMS</string>
+    <string name="onboarding_permission_sms_body">Send, receive and read text messages.</string>
+    <string name="onboarding_permission_contacts_title">Contacts</string>
+    <string name="onboarding_permission_contacts_body">Show names and photos instead of just numbers.</string>
+    <string name="onboarding_permission_notifications_title">Notifications</string>
+    <string name="onboarding_permission_notifications_body">Tell you about new messages and let you reply from the shade.</string>
+    <string name="onboarding_permission_phone_title">SIM information</string>
+    <string name="onboarding_permission_phone_body">Send from the right SIM on dual-SIM phones.</string>
+    <string name="onboarding_role_title">Make 1 MESSAGES your SMS app</string>
+    <string name="onboarding_role_body">Android only lets one app write to the system message database. Setting 1 MESSAGES as your default SMS app lets it save incoming messages, mark them read everywhere, and send reliably. Without this role the app can still read existing messages and send SMS, but it cannot act as the system messaging app.</string>
+    <string name="onboarding_role_set">Set as default</string>
+    <string name="onboarding_role_done">1 MESSAGES is your default SMS app</string>
+    <string name="onboarding_finish">Start messaging</string>
+    <string name="onboarding_not_default">Running without the SMS role</string>
+
+    <!-- Inbox -->
+    <string name="inbox_title">Messages</string>
+    <string name="inbox_search_placeholder">Search messages, names or numbers</string>
+    <string name="inbox_filter_all">All</string>
+    <string name="inbox_filter_unread">Unread</string>
+    <string name="inbox_filter_starred">Starred</string>
+    <string name="inbox_filter_archived">Archived</string>
+    <string name="inbox_filter_unknown">Unknown</string>
+    <string name="inbox_empty_title">No messages yet</string>
+    <string name="inbox_empty_body">When someone texts you, the conversation appears here. Start one yourself whenever you like.</string>
+    <string name="inbox_empty_filtered_title">Nothing here</string>
+    <string name="inbox_empty_filtered_body">No conversations match this filter right now.</string>
+    <string name="inbox_archived_title">Archived</string>
+    <string name="inbox_archived_empty">Archived conversations are kept out of your main inbox. Nothing is here yet.</string>
+    <string name="inbox_error_title">Couldn\'t load messages</string>
+    <string name="inbox_error_body">The system message database didn\'t respond. Check the SMS permission and try again.</string>
+    <string name="compose_new">New message</string>
+    <string name="inbox_permission_title">Message access is off</string>
+    <string name="inbox_permission_body">Allow SMS access so 1 MESSAGES can show your conversations. You can still compose and send once SMS permission is granted.</string>
+    <string name="inbox_unread_count">%1$d unread</string>
+    <string name="inbox_selected_count">%1$d selected</string>
+    <string name="selected_count">%1$d selected</string>
+
+    <!-- Conversation -->
+    <string name="conversation_loading">Loading conversation…</string>
+    <string name="conversation_empty_title">Say hello</string>
+    <string name="conversation_empty_body">No messages with this contact yet. Type below to start the conversation.</string>
+    <string name="message_placeholder">Message</string>
+    <string name="message_placeholder_contact">Message %1$s</string>
+    <string name="send">Send</string>
+    <string name="sending">Sending</string>
+    <string name="sent">Sent</string>
+    <string name="delivered">Delivered</string>
+    <string name="failed">Not sent</string>
+    <string name="failed_tap_to_retry">Not sent · tap to retry</string>
+    <string name="queued">Queued</string>
+    <string name="received">Received</string>
+    <string name="read">Read</string>
+    <string name="draft">Draft</string>
+    <string name="draft_restored">Draft restored</string>
+    <string name="draft_saved">Draft saved</string>
+    <string name="message_deleted">Message deleted</string>
+    <string name="conversation_deleted">Conversation deleted</string>
+    <string name="conversation_archived">Conversation archived</string>
+    <string name="conversation_restored">Conversation restored</string>
+    <string name="conversation_pinned">Pinned to top</string>
+    <string name="conversation_unpinned">Unpinned</string>
+    <string name="conversation_muted">Muted</string>
+    <string name="conversation_unmuted">Unmuted</string>
+    <string name="mark_read">Mark as read</string>
+    <string name="mark_unread">Mark as unread</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="mute">Mute</string>
+    <string name="unmute">Unmute</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="star">Star</string>
+    <string name="unstar">Unstar</string>
+    <string name="forward">Forward</string>
+    <string name="copy_text">Copy text</string>
+    <string name="message_info">Message details</string>
+    <string name="select_messages">Select messages</string>
+    <string name="copy_selected">Copy selected</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="search_in_conversation">Search in conversation</string>
+    <string name="no_search_results">No matches in this conversation</string>
+    <string name="smart_replies">Suggested</string>
+    <string name="scroll_to_latest">Jump to latest</string>
+    <string name="you_me">You</string>
+    <string name="message_sent_from_sim">via %1$s</string>
+    <string name="select_messages_hint">Tap messages to select</string>
+
+    <!-- Delete confirmations -->
+    <string name="delete_conversation_title">Delete conversation?</string>
+    <string name="delete_conversation_body">This removes the messages with %1$s from this phone. Copies on other devices or with your carrier are not affected.</string>
+    <string name="delete_messages_title">Delete messages?</string>
+    <string name="delete_messages_body">The selected messages will be removed from this phone. This cannot be undone.</string>
+    <string name="delete_selected_conversations_title">Delete %1$d conversations?</string>
+    <string name="delete_selected_conversations_body">All messages in these conversations are removed from this phone. Carriers and other devices may still keep copies.</string>
+    <string name="delete_message_body">This message will be removed from this phone.</string>
+
+    <!-- Compose / recipients -->
+    <string name="new_message_title">New message</string>
+    <string name="to">To</string>
+    <string name="recipient_hint">Name or phone number</string>
+    <string name="add_recipient">Add recipient</string>
+    <string name="no_recipients_match">No contact matches that</string>
+    <string name="send_to_number">Send to %1$s</string>
+    <string name="invalid_number">Enter a valid phone number</string>
+    <string name="contact_permission_needed">Allow contacts access to search by name. You can still type a number.</string>
+    <string name="group_recipients_title">Group message</string>
+    <string name="group_recipients_body">Group conversations are sent as MMS, which needs mobile data and may cost money. Individual recipients may receive it differently depending on their carrier.</string>
+    <string name="group_sms_note">Sending to %1$d numbers as one group requires MMS. Otherwise each recipient gets an individual SMS.</string>
+    <string name="recipients_selected">%1$d recipients</string>
+    <string name="create_group">Create group</string>
+
+    <!-- Contacts -->
+    <string name="contacts_title">Contacts</string>
+    <string name="contacts_search_placeholder">Search contacts</string>
+    <string name="contacts_empty_title">No contacts</string>
+    <string name="contacts_empty_body">Contacts you save on this device will appear here.</string>
+    <string name="contacts_permission_title">Contacts are hidden</string>
+    <string name="contacts_permission_body">Allow contacts access to pick names and photos. Typing a number always works.</string>
+    <string name="contact_details">Contact details</string>
+    <string name="contact_message">Message</string>
+    <string name="contact_add_to_contacts">Add to contacts</string>
+    <string name="contact_open_details">Open in Contacts</string>
+    <string name="contact_multiple_numbers">%1$d numbers</string>
+    <string name="contact_no_number">No phone number</string>
+    <string name="unknown_sender">Unknown sender</string>
+    <string name="phone_number_label">Phone number</string>
+
+    <!-- Starred -->
+    <string name="starred_title">Starred</string>
+    <string name="starred_empty_title">No starred messages</string>
+    <string name="starred_empty_body">Long-press a message and choose Star to keep it here.</string>
+
+    <!-- Search -->
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search messages and contacts</string>
+    <string name="search_messages_header">Messages</string>
+    <string name="search_contacts_header">Contacts</string>
+    <string name="search_empty_title">Search your messages</string>
+    <string name="search_empty_body">Find any word, name or number across this device. Nothing leaves your phone.</string>
+    <string name="search_no_results_title">No results</string>
+    <string name="search_no_results_body">Try a different word, or search by phone number.</string>
+    <string name="search_date_hint">Try “yesterday” or “this week”</string>
+    <string name="search_result_count">%1$d results</string>
+
+    <!-- MMS / attachments -->
+    <string name="attach">Attach</string>
+    <string name="attach_photo">Photo</string>
+    <string name="attach_video">Video</string>
+    <string name="attach_audio">Audio</string>
+    <string name="attach_contact">Contact</string>
+    <string name="attach_document">Document</string>
+    <string name="attachment_picker_title">Add attachment</string>
+    <string name="attachment_preview">Attachment preview</string>
+    <string name="attachment_remove">Remove attachment</string>
+    <string name="attachment_too_large">%1$s is larger than the %2$s MMS limit</string>
+    <string name="attachment_unsupported">This file type can\'t be sent over MMS</string>
+    <string name="attachment_save">Save attachment</string>
+    <string name="attachment_saved">Saved</string>
+    <string name="attachment_save_failed">Couldn\'t save the attachment</string>
+    <string name="attachment_missing">Attachment isn\'t available on this device</string>
+    <string name="attachment_failed">Attachment failed to load</string>
+    <string name="mms_not_supported_title">MMS needs mobile data</string>
+    <string name="mms_not_supported_body">Sending photos, videos or group messages requires MMS, which needs mobile data and carrier support. Turn on mobile data or send text only.</string>
+    <string name="mms_send_hint">This will be sent as MMS (%1$s)</string>
+    <string name="sms_send_hint">SMS</string>
+    <string name="mms_send_hint_none">MMS · needs mobile data</string>
+    <string name="mms_download">Download</string>
+    <string name="mms_downloaded">Downloaded</string>
+    <string name="mms_no_service">No mobile network — can\'t send MMS right now</string>
+    <string name="mms_pending_download">Tap to download this picture message</string>
+
+    <!-- SIM -->
+    <string name="sim_label">SIM</string>
+    <string name="sim_default">Default SIM</string>
+    <string name="sim_select_title">Send with</string>
+    <string name="sim_number">SIM %1$d · %2$s</string>
+    <string name="sim_number_short">SIM %1$d</string>
+    <string name="sim_unknown">Unknown SIM</string>
+    <string name="sim_none">No SIM card</string>
+    <string name="sim_none_title">No SIM card detected</string>
+    <string name="sim_none_body">You can still read your messages. To send SMS or MMS, insert a SIM card and make sure the radio is on.</string>
+    <string name="sim_airplane_title">Airplane mode is on</string>
+    <string name="sim_airplane_body">SMS can\'t be sent while airplane mode is on. Messages stay queued and can be retried once service returns.</string>
+    <string name="sim_no_service_title">No service</string>
+    <string name="sim_no_service_body">Your carrier network is unreachable. The message is saved and can be retried.</string>
+    <string name="sim_permission_needed">Allow phone state access to list SIM cards. The default SIM will be used.</string>
+    <string name="sim_settings_title">SIM &amp; sending</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_messages">Messages</string>
+    <string name="notif_channel_messages_desc">Alerts for new text and picture messages</string>
+    <string name="notif_channel_reminders">Reminders</string>
+    <string name="notif_channel_reminders_desc">Gentle reminders for conversations you haven\'t read</string>
+    <string name="notif_channel_service">Sending status</string>
+    <string name="notif_channel_service_desc">Low-priority notices for failed sends</string>
+    <string name="notif_reply_label">Reply</string>
+    <string name="notif_mark_read">Mark read</string>
+    <string name="notif_new_message">New message</string>
+    <string name="notif_messages_count">%1$d new messages</string>
+    <string name="notif_subject_group">Group message</string>
+    <string name="notif_send_failed_title">Message not sent</string>
+    <string name="notif_send_failed_body">Tap to review and retry</string>
+    <string name="notif_summary">Messages</string>
+    <string name="notif_hidden_preview">New message</string>
+    <string name="notif_permission_needed">Notifications are off</string>
+    <string name="notif_permission_body">Allow notifications to see new messages without opening the app.</string>
+    <string name="notif_enable">Turn on notifications</string>
+    <string name="notif_test_title">Test notification</string>
+    <string name="notif_test_body">If you can see this, notifications work. Long-press to check your settings.</string>
+    <string name="notif_test_action">Send test notification</string>
+    <string name="notif_preview_title">Preview</string>
+    <string name="notif_reminder_title">Unread message from %1$s</string>
+    <string name="notif_reminder_body">You haven\'t opened this conversation yet.</string>
+    <string name="notif_mark_all_read">Mark all read</string>
+
+    <!-- Settings: general -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_summary">Theme, colors, bubbles, text size, density</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_summary">Sounds, vibration, privacy, quiet hours</string>
+    <string name="settings_privacy">Privacy &amp; security</string>
+    <string name="settings_privacy_summary">App lock, content privacy, permissions</string>
+    <string name="settings_sim">SIM &amp; messaging</string>
+    <string name="settings_sim_summary">Default SIM, SMS options, delivery reports</string>
+    <string name="settings_organization">Smart organization</string>
+    <string name="settings_organization_summary">Categories, keywords and OTP detection</string>
+    <string name="settings_backup">Backup &amp; restore</string>
+    <string name="settings_backup_summary">Export an encrypted copy of your settings</string>
+    <string name="settings_storage">Storage &amp; diagnostics</string>
+    <string name="settings_storage_summary">Space used and error log</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_summary">Version, licenses, privacy policy</string>
+    <string name="settings_default_role">Default SMS app</string>
+    <string name="settings_default_role_active">1 MESSAGES is your default SMS app</string>
+    <string name="settings_default_role_inactive">1 MESSAGES is not your default SMS app</string>
+    <string name="settings_default_role_body">Required to save incoming messages and manage read state in the system database.</string>
+    <string name="settings_default_role_cta">Set as default SMS app</string>
+    <string name="settings_permissions_section">Permissions</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_version">Version %1$s (%2$d)</string>
+    <string name="settings_legal">No account, no analytics, no ads.</string>
+
+    <!-- Appearance -->
+    <string name="appearance_theme">Theme</string>
+    <string name="appearance_theme_system">System</string>
+    <string name="appearance_theme_light">Light</string>
+    <string name="appearance_theme_dark">Dark</string>
+    <string name="appearance_accent">Accent color</string>
+    <string name="appearance_accent_violet">Electric violet</string>
+    <string name="appearance_accent_sky">Sky blue</string>
+    <string name="appearance_accent_mint">Mint</string>
+    <string name="appearance_accent_coral">Coral</string>
+    <string name="appearance_accent_amber">Amber</string>
+    <string name="appearance_accent_rose">Rose</string>
+    <string name="appearance_bubble_style">Bubble colors</string>
+    <string name="appearance_bubble_accent">Accent tint</string>
+    <string name="appearance_bubble_surface">Neutral surface</string>
+    <string name="appearance_bubble_high_contrast">High contrast</string>
+    <string name="appearance_font_size">Text size</string>
+    <string name="appearance_density">Conversation density</string>
+    <string name="appearance_density_compact">Compact</string>
+    <string name="appearance_density_cozy">Cozy</string>
+    <string name="appearance_density_comfortable">Comfortable</string>
+    <string name="appearance_reduced_motion">Reduce motion</string>
+    <string name="appearance_reduced_motion_body">Turns off message and navigation animations.</string>
+    <string name="appearance_haptics">Haptic feedback</string>
+    <string name="appearance_haptics_body">A short vibration when you send a message.</string>
+    <string name="appearance_wallpaper">Conversation background</string>
+    <string name="appearance_wallpaper_plain">Plain</string>
+    <string name="appearance_wallpaper_soft">Soft gradient</string>
+    <string name="appearance_example">Preview</string>
+    <string name="appearance_language">App language</string>
+    <string name="appearance_language_system">System default</string>
+    <string name="appearance_show_avatars">Show contact photos</string>
+    <string name="appearance_avatars_body">Uses contact photos when contacts permission is granted.</string>
+
+    <!-- Notification settings -->
+    <string name="notif_settings_new_messages">New message alerts</string>
+    <string name="notif_settings_new_messages_body">Turn off to silence all incoming message notifications.</string>
+    <string name="notif_settings_preview">Show message preview</string>
+    <string name="notif_settings_preview_body">When off, notifications show only the sender.</string>
+    <string name="notif_settings_lock_screen">Hide content on lock screen</string>
+    <string name="notif_settings_lock_screen_body">Previews are hidden whenever the device is locked.</string>
+    <string name="notif_settings_group">Group conversations in the shade</string>
+    <string name="notif_settings_group_body">Bundle notifications by conversation.</string>
+    <string name="notif_settings_sound">Notification sound</string>
+    <string name="notif_settings_vibration">Vibration</string>
+    <string name="notif_settings_vibration_body">Vibrate when a message arrives.</string>
+    <string name="notif_settings_reminders">Unread reminders</string>
+    <string name="notif_settings_reminders_body">A single quiet reminder for messages left unread.</string>
+    <string name="notif_settings_reminder_delay">Remind after</string>
+    <string name="notif_settings_quiet_hours">Quiet hours</string>
+    <string name="notif_settings_quiet_hours_body">Silence notifications during a daily window. Android Do Not Disturb always takes priority.</string>
+    <string name="notif_settings_quiet_start">Start</string>
+    <string name="notif_settings_quiet_end">End</string>
+    <string name="notif_settings_quiet_enabled">Enable quiet hours</string>
+    <string name="notif_settings_priority">Priority conversations</string>
+    <string name="notif_settings_priority_body">Allow pinned conversations to notify during quiet hours.</string>
+    <string name="notif_settings_system">Android notification settings</string>
+    <string name="notif_settings_system_body">Sounds, channels and Do Not Disturb are controlled by Android.</string>
+    <string name="notif_settings_open_system">Open Android settings</string>
+    <string name="notif_settings_dnd_title">Do Not Disturb is on</string>
+    <string name="notif_settings_dnd_body">Android will keep your notifications quiet, regardless of app settings.</string>
+    <string name="notif_delay_15">15 minutes</string>
+    <string name="notif_delay_30">30 minutes</string>
+    <string name="notif_delay_60">1 hour</string>
+    <string name="notif_delay_180">3 hours</string>
+
+    <!-- Privacy -->
+    <string name="privacy_app_lock">App lock</string>
+    <string name="privacy_app_lock_body">Require your fingerprint or device PIN to open 1 MESSAGES. This locks the app, not the system SMS database.</string>
+    <string name="privacy_app_lock_enable">Enable app lock</string>
+    <string name="privacy_app_lock_unavailable">Set a screen lock on this device first to use app lock.</string>
+    <string name="privacy_lock_title">1 MESSAGES is locked</string>
+    <string name="privacy_lock_body">Unlock to view your messages.</string>
+    <string name="privacy_lock_unlock">Unlock</string>
+    <string name="privacy_lock_subtitle">Use your fingerprint or screen lock</string>
+    <string name="privacy_lock_failed">Couldn\'t verify. Try again.</string>
+    <string name="privacy_hide_preview">Hide sensitive content</string>
+    <string name="privacy_hide_preview_body">Never show message text on the lock screen.</string>
+    <string name="privacy_otp_detection">Detect verification codes</string>
+    <string name="privacy_otp_detection_body">Find one-time codes in messages on this device so you can copy them quickly. Codes are never sent anywhere and never typed for you.</string>
+    <string name="privacy_hide_otp">Blur codes until tapped</string>
+    <string name="privacy_hide_otp_body">Codes stay hidden until you tap them.</string>
+    <string name="privacy_permissions">Permissions</string>
+    <string name="privacy_permissions_body">Review what 1 MESSAGES can access. You can revoke any permission in Android settings.</string>
+    <string name="privacy_delete_all">Delete all app data</string>
+    <string name="privacy_delete_all_body">Removes this app\'s pins, drafts, categories and settings. System SMS messages are managed by Android and are not deleted here.</string>
+    <string name="privacy_delete_all_confirm">Clear app data?</string>
+    <string name="privacy_delete_all_done">App metadata cleared</string>
+    <string name="privacy_no_upload">Your messages never leave this phone. There is no server, no account and no analytics.</string>
+    <string name="privacy_threat_model">Privacy details</string>
+    <string name="privacy_threat_model_body">1MESSAGES asks Android for SMS access, which means apps with the default SMS role can read your texts. Android protects this data with app sandboxing and device encryption, not with a separate password. App lock stops casual access to the app but cannot hide already-delivered notification content shown by the system. Deleting a conversation removes the local system copy; your carrier or the recipient may still have it.</string>
+
+    <!-- Organization -->
+    <string name="org_categories">Inbox categories</string>
+    <string name="org_categories_body">Sort conversations into Personal, Work, Transactions, Verification and Unknown. Rules run only on this device.</string>
+    <string name="org_enable">Enable categories</string>
+    <string name="org_otp_enable">Detect verification codes</string>
+    <string name="org_hide_codes">Hide code digits until tapped</string>
+    <string name="org_rules">Keyword rules</string>
+    <string name="org_rules_body">Messages containing these words get a category. Rules are suggestions you can undo.</string>
+    <string name="org_add_rule">Add rule</string>
+    <string name="org_rule_keyword">Keyword or sender contains</string>
+    <string name="org_rule_category">Category</string>
+    <string name="org_rule_delete">Delete rule</string>
+    <string name="org_no_rules">No rules yet. Default rules cover common OTP and banking wording.</string>
+    <string name="org_category_personal">Personal</string>
+    <string name="org_category_work">Work</string>
+    <string name="org_category_transactions">Transactions</string>
+    <string name="org_category_otp">Verification</string>
+    <string name="org_category_unknown">Unknown sender</string>
+    <string name="org_disclaimer">Categories are a local guess based on wording. A message that looks like a bank alert is not proof it came from your bank. Never act on links or codes you did not request.</string>
+    <string name="org_txn_warning">Money-message wording detected. Verify with your bank through official channels before acting.</string>
+    <string name="otp_detected">Verification code</string>
+    <string name="otp_copy">Copy code</string>
+    <string name="otp_show">Show code</string>
+    <string name="otp_copied">Code copied</string>
+    <string name="otp_warning">Only use codes you requested. 1MESSAGES never enters codes for you.</string>
+
+    <!-- SIM & messaging settings -->
+    <string name="sim_settings_default">Preferred SIM</string>
+    <string name="sim_settings_default_body">Used when a conversation hasn\'t picked a SIM.</string>
+    <string name="sim_settings_ask">Ask every time</string>
+    <string name="sim_settings_delivery_reports">Request delivery reports</string>
+    <string name="sim_settings_delivery_reports_body">Your carrier may charge for these and not all carriers support them.</string>
+    <string name="sim_settings_multipart">Long message handling</string>
+    <string name="sim_settings_multipart_body">Messages over 160 characters are split into parts by Android\'s multipart API.</string>
+    <string name="sim_settings_retry">Auto-retry failed sends</string>
+    <string name="sim_settings_retry_body">Retry once when the radio reports a temporary failure.</string>
+    <string name="sim_settings_mms">MMS over mobile data</string>
+    <string name="sim_settings_mms_body">MMS delivery depends on carrier configuration and mobile data. 1MESSAGES hands this to Android\'s telephony service.</string>
+    <string name="sim_settings_sms_only">Text only</string>
+    <string name="sim_settings_auto_download">Auto-download incoming MMS</string>
+    <string name="sim_settings_auto_download_body">Download picture messages automatically instead of waiting for a tap.</string>
+    <string name="sim_settings_group_mms">Group messaging</string>
+    <string name="sim_settings_group_mms_body">Send group conversations as MMS when the carrier supports it.</string>
+    <string name="sim_settings_manage_sims">SIM cards</string>
+    <string name="sim_settings_manage_sims_body">Android controls which SIM is active. Open system settings to change it.</string>
+    <string name="sim_settings_open_system">Open SIM settings</string>
+    <string name="sim_settings_signature">Signature</string>
+    <string name="sim_settings_signature_body">Appended to every new message.</string>
+
+    <!-- Backup -->
+    <string name="backup_title">Backup &amp; restore</string>
+    <string name="backup_export">Export app data</string>
+    <string name="backup_export_body">Creates an encrypted file with your pins, drafts, categories, rules and settings. Messages themselves stay in the Android database and are not copied.</string>
+    <string name="backup_export_password">Choose a password</string>
+    <string name="backup_export_password_body">At least 8 characters. Without it the file cannot be opened — there is no recovery.</string>
+    <string name="backup_export_action">Create encrypted backup</string>
+    <string name="backup_export_success">Backup saved</string>
+    <string name="backup_export_failed">Backup failed</string>
+    <string name="backup_password_short">Use at least 8 characters</string>
+    <string name="backup_import">Restore from file</string>
+    <string name="backup_import_body">Choose a 1MESSAGES backup file and enter its password. Existing pins and settings are replaced.</string>
+    <string name="backup_import_action">Restore</string>
+    <string name="backup_import_success">Restored %1$d conversations</string>
+    <string name="backup_import_failed">Couldn\'t restore that file</string>
+    <string name="backup_wrong_password">Wrong password or damaged file</string>
+    <string name="backup_format">Format %1$s</string>
+    <string name="backup_privacy">Backups are encrypted with AES-256-GCM using a key derived from your password with PBKDF2. The file is only as safe as your password.</string>
+    <string name="backup_clear_data">Reset local app data</string>
+
+    <!-- Storage & diagnostics -->
+    <string name="storage_database">App database</string>
+    <string name="storage_preferences">Preferences</string>
+    <string name="storage_attachments">Cached attachments</string>
+    <string name="storage_total">Total app storage</string>
+    <string name="storage_clear_cache">Clear cached attachments</string>
+    <string name="storage_cleared">Cache cleared</string>
+    <string name="storage_usage_value">%1$s</string>
+    <string name="diagnostics">Diagnostics</string>
+    <string name="diagnostics_body">A local log of technical events. Message text, numbers and codes are never written here.</string>
+    <string name="diagnostics_clear">Clear log</string>
+    <string name="diagnostics_empty">Nothing logged yet.</string>
+    <string name="diagnostics_export">Copy log</string>
+    <string name="diagnostics_sms_role">SMS role</string>
+    <string name="diagnostics_default_sms">Default SMS app</string>
+    <string name="diagnostics_sims">Detected SIMs</string>
+    <string name="diagnostics_radio">Radio state</string>
+    <string name="diagnostics_copied">Log copied</string>
+
+    <!-- About -->
+    <string name="about_title">About 1MESSAGES</string>
+    <string name="about_body">1MESSAGES is an offline-first SMS app. It has no account, no server and no advertising. Your messages live in Android\'s own SMS database, protected by the operating system.</string>
+    <string name="about_privacy_policy">Privacy policy</string>
+    <string name="about_privacy_policy_body">We collect nothing. There is no network permission in this app, so no message, contact or usage data can be transmitted. Crash reporting is disabled.</string>
+    <string name="about_licenses">Open-source licenses</string>
+    <string name="about_licenses_body">Built with Jetpack Compose, Kotlin, Room, DataStore, Hilt and WorkManager under the Apache License 2.0.</string>
+    <string name="about_contact">This build was produced for evaluation.</string>
+    <string name="about_oss">View licenses</string>
+    <string name="about_debug_build">Debug build</string>
+    <string name="about_permissions">Permissions used</string>
+
+    <!-- Generic states -->
+    <string name="error_generic">Something went wrong</string>
+    <string name="error_try_again">Tap to try again</string>
+    <string name="error_sms_failed">Message could not be sent. Check your signal and SIM, then retry.</string>
+    <string name="error_no_sim">No SIM card available</string>
+    <string name="error_radio_off">Radio is off — try again when you have service</string>
+    <string name="error_sms_too_long">Message is too long to send</string>
+    <string name="error_no_default_sms">1MESSAGES is not the default SMS app, so this message may not appear in other apps</string>
+    <string name="error_rate_limited">Too many messages at once. Wait a moment.</string>
+    <string name="permission_denied_title">Permission needed</string>
+    <string name="permission_denied_body">This feature needs a permission you declined. You can grant it in Android settings at any time.</string>
+    <string name="permission_denied_permanently">You\'ve declined this permission. Open Android settings to grant it.</string>
+    <string name="search_permission_sms">Search needs SMS permission</string>
+
+    <!-- Time formatting -->
+    <string name="time_just_now">now</string>
+    <string name="time_minutes_ago">%1$dm</string>
+    <string name="time_hours_ago">%1$dh</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+
+    <!-- Accessibility -->
+    <string name="cd_contact_avatar">Avatar for %1$s</string>
+    <string name="cd_unread_badge">%1$d unread messages</string>
+    <string name="cd_pinned">Pinned conversation</string>
+    <string name="cd_muted">Muted conversation</string>
+    <string name="cd_attachment">Attachment: %1$s</string>
+    <string name="cd_send_message">Send message</string>
+    <string name="cd_message_from_you">Message from you: %1$s</string>
+    <string name="cd_message_from_them">Message from %1$s: %2$s</string>
+    <string name="cd_open_conversation">Open conversation with %1$s</string>
+    <string name="cd_selected">Selected</string>
+    <string name="cd_not_selected">Not selected</string>
+    <string name="cd_starred">Starred</string>
+    <string name="cd_failed_send">Failed to send. Tap to retry.</string>
+    <string name="cd_app_logo">1Messages logo</string>
+    <string name="cd_more_options">More options for %1$s</string>
+    <string name="cd_new_message">Compose a new message</string>
+
+    <!-- Misc -->
+    <string name="per_conversation_title">Conversation settings</string>
+    <string name="per_conversation_notifications">Notifications</string>
+    <string name="per_conversation_sound">Notification sound</string>
+    <string name="per_conversation_default_sound">Default</string>
+    <string name="per_conversation_priority">Priority</string>
+    <string name="per_conversation_priority_body">Allow this conversation to break through quiet hours.</string>
+    <string name="per_conversation_block">Block sender</string>
+    <string name="per_conversation_block_body">Blocked senders are hidden and won\'t notify. Android\'s own blocking still applies.</string>
+    <string name="per_conversation_blocked">Sender blocked</string>
+    <string name="per_conversation_unblock">Unblock sender</string>
+    <string name="blocked_senders">Blocked senders</string>
+    <string name="blocked_senders_empty">No blocked senders</string>
+    <string name="blocked_sender_hidden">Blocked message</string>
+    <string name="unblock">Unblock</string>
+
+    <!-- Additions used by the composer, search and settings screens -->
+    <string name="composer_chars">%1$d characters</string>
+    <string name="composer_segments">%1$d characters · %2$d SMS parts</string>
+    <string name="inbox_menu_sort">Sort unread first</string>
+    <string name="language_english">English</string>
+    <string name="language_amharic">አማርኛ</string>
+    <string name="language_note">Changing the language restarts the app UI. System messages stay in the language your device uses.</string>
+    <string name="mms_received_title">Multimedia message waiting</string>
+    <string name="mms_received_body">A picture or group message arrived. This build can't display new MMS: Android doesn't expose the parser or database write access third-party apps need. Ask the sender to resend as text, or use your carrier's messaging app.</string>
+    <string name="permission_denied_short">Not granted</string>
+    <string name="permission_granted">Granted</string>
+    <string name="read_unread_body">Opening a conversation marks its messages as read.</string>
+    <string name="refresh_short">Refresh</string>
+    <string name="otp_masked_hint">Tap to reveal the code</string>
+    <string name="sms_only_notice">Text only</string>
+    <string name="conversation_sim_changed">Sending with a different SIM</string>
+
+    <plurals name="conversations_deleted">
+        <item quantity="one">%1$d conversation deleted</item>
+        <item quantity="other">%1$d conversations deleted</item>
+    </plurals>
+    <plurals name="notif_unread_messages">
+        <item quantity="one">%1$d unread message</item>
+        <item quantity="other">%1$d unread messages</item>
+    </plurals>
+    <string name="privacy_lock_continue">Open without the app lock</string>
+</resources>

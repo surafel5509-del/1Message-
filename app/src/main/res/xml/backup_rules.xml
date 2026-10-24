@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto-backup is disabled (android:allowBackup="false") because the app stores message
+  metadata, drafts and notification settings that we do not want silently uploaded to a
+  cloud backup. Users get an explicit, encrypted, local export instead (Settings > Backup).
+-->
+<full-backup-content>
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="file" path="." />
+</full-backup-content>
