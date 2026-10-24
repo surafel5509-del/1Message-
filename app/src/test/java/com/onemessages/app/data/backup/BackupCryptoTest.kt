@@ -48,6 +48,6 @@ class BackupCryptoTest {
     fun secureWipeClearsTheBuffer() {
         val buffer = byteArrayOf(1, 2, 3, 4)
         BackupCrypto.secureWipe(buffer)
-        assertThat(buffer.toList()).containsExactly(0, 0, 0, 0)
+        assertThat(buffer).isEqualTo(ByteArray(4))
     }
 }

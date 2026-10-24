@@ -33,9 +33,11 @@ class SmsSegmentsTest {
     fun remainingInPartCountsDownAndWraps() {
         assertThat(SmsSegments.remainingInPart("")).isEqualTo(160)
         assertThat(SmsSegments.remainingInPart("hello")).isEqualTo(155)
+        // The first part holds a full 160 characters; only after that do the 153-character
+        // concatenation boundaries apply.
         assertThat(SmsSegments.remainingInPart("a".repeat(160))).isEqualTo(0)
-        assertThat(SmsSegments.remainingInPart("a".repeat(153))).isEqualTo(0)
-        assertThat(SmsSegments.remainingInPart("a".repeat(154))).isEqualTo(152)
+        assertThat(SmsSegments.remainingInPart("a".repeat(161))).isEqualTo(145)
         assertThat(SmsSegments.remainingInPart("ሰ".repeat(70))).isEqualTo(0)
+        assertThat(SmsSegments.remainingInPart("ሰ".repeat(71))).isEqualTo(63)
     }
 }
