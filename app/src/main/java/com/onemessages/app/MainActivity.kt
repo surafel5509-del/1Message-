@@ -2,6 +2,7 @@ package com.onemessages.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -24,6 +25,9 @@ class MainActivity : FragmentActivity() {
 
     private val viewModel: AppViewModel by viewModels()
     private val deepLink = mutableStateOf<NavTarget?>(null)
+
+    /** Set when the app leaves the foreground; used to decide whether the lock should return. */
+    private var backgroundedAt = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -50,12 +54,26 @@ class MainActivity : FragmentActivity() {
         super.onResume()
         // Permissions, the SMS role and SIMs can all change while we are backgrounded.
         viewModel.refreshPermissions()
+        // Re-lock only after a real absence. Document pickers, permission dialogs and the
+        // role chooser also stop the activity, and locking during those would throw away the
+        // user's work mid-flow.
+        val leftAt = backgroundedAt
+        if (leftAt > 0L && SystemClock.elapsedRealtime() - leftAt >= LOCK_AFTER_MS) {
+            viewModel.lockIfEnabled()
+        }
+        backgroundedAt = 0L
     }
 
-    /** Called when the app comes back after the user has been away for a while. */
     override fun onStop() {
         super.onStop()
-        viewModel.lockIfEnabled()
+        if (!isChangingConfigurations) {
+            backgroundedAt = SystemClock.elapsedRealtime()
+        }
+    }
+
+    private companion object {
+        /** Being away for less than this keeps the app unlocked (backup exports, pickers). */
+        const val LOCK_AFTER_MS = 20_000L
     }
 
     private fun handleIntent(intent: Intent?) {

@@ -99,6 +99,10 @@ gradle wrapper --gradle-version 8.9
 * **Outbox**: every send is written to a Room outbox row first so it survives process death,
   can be retried, and cannot be double-sent (duplicates are collapsed on
   `normalisedAddress + bodyHash`).
+* **External entry points**: `sms:`/`smsto:`/`mms:`/`mmsto:` links open a prefilled composer,
+  `ACTION_SEND` of shared text opens the composer with that text, and notification taps deep
+  link straight into the conversation. A `SENDTO` filter is also part of the `ROLE_SMS`
+  requirements.
 
 ---
 
@@ -177,6 +181,8 @@ pretends incoming messages are being stored.
   There is no recovery: a forgotten password means an unreadable file.
 * `allowBackup=false`, so Android's cloud backup never copies app data either. Export is the
   only path off the device and the user runs it.
+* The app lock re-arms after 20 seconds in the background, so opening a document picker or a
+  permission dialog does not throw the user back to the lock screen mid-flow.
 * The app lock is a **convenience gate, not encryption**. It stops someone who picks up an
   unlocked phone from opening the app; it does not encrypt Android's SMS database, does not
   protect against a rooted device, and cannot retract notification text the system already
