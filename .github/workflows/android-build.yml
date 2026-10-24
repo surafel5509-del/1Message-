@@ -140,6 +140,23 @@ jobs:
           path: build-logs/**
           if-no-files-found: warn
 
+      - name: Assert the APK has no INTERNET permission
+        if: success()
+        run: |
+          set -o pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Android/Sdk}}"
+          AAPT2="$SDK_ROOT/build-tools/35.0.0/aapt2"
+          for apk in app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk; do
+            [ -f "$apk" ] || continue
+            perms=$("$AAPT2" dump permissions "$apk")
+            echo "$perms"
+            if echo "$perms" | grep -q "android.permission.INTERNET"; then
+              echo "::error::$apk declares INTERNET, which breaks the privacy guarantee"
+              exit 1
+            fi
+          done
+          echo "No INTERNET permission in any built APK."
+
       - name: Describe the built APKs
         if: success()
         run: |

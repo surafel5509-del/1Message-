@@ -183,8 +183,18 @@ diagnostics log. No message body is ever copied into app storage.
 | `BROADCAST_SMS` | **not requested** — signature permission, held by the system | — |
 
 Deliberately absent: `INTERNET`, `READ_EXTERNAL_STORAGE`/`WRITE_EXTERNAL_STORAGE`
-(the app uses the Storage Access Framework), `ACCESS_NETWORK_STATE`, any analytics or ad SDK,
-and `QUERY_ALL_PACKAGES`.
+(the app uses the Storage Access Framework), any analytics or ad SDK, and
+`QUERY_ALL_PACKAGES`. CI fails the build if `INTERNET` ever appears in the merged manifest.
+
+A few permissions in the built APK come from libraries rather than from app code, and are worth
+naming so the list above is not mistaken for the whole story:
+
+| Permission | Source | What it can actually do here |
+| --- | --- | --- |
+| `ACCESS_NETWORK_STATE` | WorkManager | reads whether a network exists; it grants no ability to open a socket |
+| `WAKE_LOCK`, `FOREGROUND_SERVICE` | WorkManager | keep a scheduled job running |
+| `RECEIVE_BOOT_COMPLETED` | WorkManager / our boot receiver | re-register reminders after a reboot |
+| `USE_FINGERPRINT` | androidx.biometric | legacy biometric API on Android 8 (API 26–28); superseded by `USE_BIOMETRIC` |
 
 ### The default SMS role
 
