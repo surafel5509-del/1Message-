@@ -617,7 +617,14 @@ class SystemSmsDataSource @Inject constructor(
                 "${Telephony.Sms.THREAD_ID} = ?",
                 arrayOf(threadId.toString()),
                 "${Telephony.Sms.DATE} DESC LIMIT 1",
-            )?.use { c -> if (c.moveToFirst()) c.getStringOrNull(0)?.let { listOf(it) } ?: emptyList() else emptyList() }
+            )?.use { c ->
+                if (c.moveToFirst()) {
+                    val address = c.getStringOrNull(0)
+                    if (address.isNullOrBlank()) emptyList<String>() else listOf(address)
+                } else {
+                    emptyList<String>()
+                }
+            } ?: emptyList<String>()
         }.getOrNull().orEmpty()
     }
 
