@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 concurrency:
@@ -139,6 +139,26 @@ jobs:
           name: build-logs
           path: build-logs/**
           if-no-files-found: warn
+
+      - name: Publish APKs as a release
+        if: success() && github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: 1Messages APKs (build ${{ github.run_number }})
+          prerelease: true
+          body: |
+            Automatically built from commit ${{ github.sha }} by [workflow run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+            * `app-debug.apk` - debug variant, `com.onemessages.app.debug`, no minification.
+            * `app-release.apk` - minified release variant, **signed with the repository debug
+              keystore** for evaluation only. Replace the signing config before shipping.
+
+            Both are built by Gradle 8.9 / AGP 8.7.2 / Kotlin 2.0.21 against compileSdk 35, minSdk 26.
+          files: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+          fail_on_unmatched_files: false
 
       - name: Upload debug APK
         if: always()
