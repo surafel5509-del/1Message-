@@ -25,14 +25,23 @@ Toolchain used by CI: JDK 17 (temurin), Android SDK platform 35 + build-tools 35
 Gradle 8.9, AGP 8.7.2, Kotlin 2.0.21, KSP, Room, Hilt.
 
 What CI actually runs: `compileDebugKotlin` → `testDebugUnitTest` → `assembleDebug` →
-`assembleRelease`, with the full logs uploaded as the `build-logs` artifact and compile/test
-failures mirrored into [issue #1](https://github.com/surafel5509-del/1Message-/issues/1).
+`assembleRelease`, then a no-`INTERNET` assertion on both APKs, with the full logs uploaded as
+the `build-logs` artifact and compile/test failures mirrored into
+[issue #1](https://github.com/surafel5509-del/1Message-/issues/1). Every release body is
+generated from that same run and now states the exact test totals read from
+`app/build/test-results/testDebugUnitTest` — check the numbers there rather than trusting a
+README claim.
+
+The latest verified build at the time of writing is `apk-17` (commit `4b7f713`):
+`41` JVM tests, `0` failures, `0` errors, `0` skipped; `app-debug.apk` 19,859,840 B and
+`app-release.apk` 2,382,724 B.
 
 **What is verified and what is not**
 
 * Verified: the project compiles, `assembleDebug` and `assembleRelease` produce signed APKs,
-  and all 32 JVM unit tests pass (they exercise phone-number matching, SMS segmentation,
-  quiet hours, smart organisation/OTP detection and the backup crypto format).
+  the packaged APKs contain no `INTERNET` permission, and all 41 JVM unit tests pass (they
+  exercise phone-number matching, SMS segmentation, quiet hours, smart organisation/OTP
+  detection, suggested-reply rules and the backup crypto format).
 * **Not verified: anything that needs a device.** No emulator or phone has run this app. The
   instrumentation tests in `app/src/androidTest` compile only when a device build runs them and
   have never been executed. Runtime behaviour — the default-SMS role, real sends, notifications,
@@ -366,6 +375,16 @@ Do this on a real phone with a SIM, not just an emulator (emulators have no real
 16. TalkBack: every icon button announces something meaningful; font scale 200% does not clip.
 17. Deny SMS permission, reopen: permission screen explains what is missing, no crash.
 18. Revoke the default-SMS role while the app is open, return to it: the banner reflects it.
+19. **Send later**: schedule a message two minutes out, watch the "Scheduled · N" chip appear,
+    lock the phone, and confirm the SMS actually leaves at (or shortly after) the chosen time.
+    Then schedule another, cancel it from the chip's sheet, and confirm nothing is sent. Enable
+    battery saver / Doze in between to see how much delay the scheduler adds.
+20. **Suggested replies**: with the composer empty, the three chips must match the last received
+    message (question → Yes/No, greeting → Hello!). Tapping one inserts the text; it must not
+    send by itself. Turn the feature off in *SIM & messaging* and confirm the chips disappear.
+21. **Export**: overflow menu → Export conversation → pick a file. Open the saved `.txt` and
+    confirm message order, sender labels and timestamps; confirm no export happens unless you
+    pick a destination.
 
 ---
 
