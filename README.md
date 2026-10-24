@@ -10,24 +10,65 @@ WorkManager · Coroutines/Flow · single activity · minSdk 26 · targetSdk 35.
 
 ---
 
-## 1. Build status (read this first)
+## 1. Build status
 
-**This repository has not been compiled, and no APK has been produced.** The environment used
-to write it had no JDK, no Android SDK, and no network access to `dl.google.com`,
-`maven.google.com`, `repo1.maven.org` or `services.gradle.org`, so dependency resolution and
-compilation were both impossible. Every claim below about behaviour is a description of the
-source, not of an executed build or test run.
+The APKs are built by GitHub Actions on every push to `arena/406fec51-1message` and on demand
+(`Actions → Build APK → Run workflow`):
 
-What *was* verified, mechanically, by the scripts in `tools/`:
+**Download: [github.com/surafel5509-del/1Message-/releases](https://github.com/surafel5509-del/1Message-/releases)**
+— each successful build publishes a prerelease tagged `apk-<run-number>` with
+`app-debug.apk` (~19 MB, debug variant, `com.onemessages.app.debug`) and `app-release.apk`
+(~2.3 MB, minified release variant, **signed with the repository debug keystore** for
+evaluation only — replace the signing config before shipping).
+
+Toolchain used by CI: JDK 17 (temurin), Android SDK platform 35 + build-tools 35.0.0,
+Gradle 8.9, AGP 8.7.2, Kotlin 2.0.21, KSP, Room, Hilt.
+
+What CI actually runs: `compileDebugKotlin` → `testDebugUnitTest` → `assembleDebug` →
+`assembleRelease`, with the full logs uploaded as the `build-logs` artifact and compile/test
+failures mirrored into [issue #1](https://github.com/surafel5509-del/1Message-/issues/1).
+
+**What is verified and what is not**
+
+* Verified: the project compiles, `assembleDebug` and `assembleRelease` produce signed APKs,
+  and all 32 JVM unit tests pass (they exercise phone-number matching, SMS segmentation,
+  quiet hours, smart organisation/OTP detection and the backup crypto format).
+* **Not verified: anything that needs a device.** No emulator or phone has run this app. The
+  instrumentation tests in `app/src/androidTest` compile only when a device build runs them and
+  have never been executed. Runtime behaviour — the default-SMS role, real sends, notifications,
+  Compose layout on a real screen — is unexercised, so treat this as a build that installs and
+  starts, not as a release candidate.
+* MMS composition is not implemented at all; see [Limitations](#6-known-limitations-honest-list).
+
+Install on a phone with developer options enabled:
+
+```bash
+adb install -r app-release.apk        # or app-debug.apk, they can coexist
+```
+
+The debug variant installs alongside the release one because its application id ends in
+`.debug`; the two do not share data.
+
+### Local build
+
+Requires network access to Google's Maven repository and the Android SDK; the Gradle wrapper
+JAR is not committed, so either open the project in Android Studio or generate it once:
+
+```bash
+gradle wrapper --gradle-version 8.9
+./gradlew :app:assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
+./gradlew :app:assembleRelease      # app/build/outputs/apk/release/app-release.apk
+./gradlew :app:testDebugUnitTest    # JVM unit tests
+./gradlew :app:connectedDebugAndroidTest   # instrumentation tests, needs a device/emulator
+```
+
+`google-services.json` is **not** required: there is no Firebase, no analytics and no backend.
+
+### Static checks (no SDK required)
 
 | Check | Command | Result |
 | --- | --- | --- |
-| XML well-formedness of all resources and the manifest | `python3 tools/verify_project.py` | passes |
-| Every `R.string`/`R.plurals` reference in Kotlin exists | `python3 tools/verify_project.py` | passes |
-| English ↔ Amharic string parity | `python3 tools/verify_project.py` | passes (504 / 504) |
-| No `INTERNET` permission | `python3 tools/verify_project.py` | passes |
-| Manifest component classes exist on disk | `python3 tools/verify_project.py` | passes |
-| Package declaration matches directory layout, braces balanced | `python3 tools/verify_project.py` | passes |
+| XML well-formedness, `R.*` references, EN/AM parity, no `INTERNET` permission, manifest classes | `python3 tools/verify_project.py` | passes |
 | Project types used in a file are imported | `python3 tools/check_imports.py` | passes |
 | `receiver.member` calls resolve to declared members | `python3 tools/check_refs.py` | passes |
 | `stringResource` argument counts match the format strings | `python3 tools/check_string_args.py` | passes |
@@ -35,28 +76,6 @@ What *was* verified, mechanically, by the scripts in `tools/`:
 | `when` blocks over project enums are exhaustive | `python3 tools/check_when_exhaustive.py` | passes |
 | Compose symbols and `by` delegates are imported | `python3 tools/check_compose_imports.py` | passes |
 | `ProjectObject.member` references exist | `python3 tools/check_object_refs.py` | passes |
-
-Those scripts are a smoke test, not a compiler. **Expect to fix a few compile errors on the
-first real build** — most likely unused imports promoted to errors, Compose API signature
-changes, or a delegate/`by` import that the static check cannot see.
-
-To build it (requires network access to Google's Maven repository and the Android SDK):
-
-```bash
-# JDK 17, Android SDK platform 35 + build-tools 35.0.0
-# The wrapper JAR is not committed (binary), so generate it once if you do not use
-# Android Studio, which provides its own Gradle:
-gradle wrapper --gradle-version 8.9
-
-./gradlew :app:assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
-./gradlew :app:assembleRelease      # signed with the debug keystore; replace before shipping
-./gradlew :app:testDebugUnitTest    # JVM unit tests
-./gradlew :app:connectedDebugAndroidTest   # instrumentation tests, needs a device/emulator
-```
-
-`google-services.json` is **not** required: there is no Firebase, no analytics and no backend.
-
----
 
 ## 2. What the app does
 
@@ -232,8 +251,10 @@ pretends incoming messages are being stored.
    the system database; the app cannot recover messages it never saw.
 8. **Search is local and exact-ish.** It matches substrings in bodies, names and numbers via
    the system provider; there is no fuzzy matching and no ranking.
-9. **No APK in this repository** — see section 1.
-10. **Amharic translations** cover the user-facing UI; rarely seen diagnostics text falls back
+9. **APKs live in GitHub Releases, not in the repository.** They are CI-built and
+   debug-keystore signed; the "release" APK is a release *build*, not a store-signed release.
+10. **Nothing has been run on a device.** See section 1.
+11. **Amharic translations** cover the user-facing UI; rarely seen diagnostics text falls back
     to English on purpose.
 
 ---
@@ -258,7 +279,9 @@ pretends incoming messages are being stored.
 | `RoutesTest` | navigation route encoding for addresses with `+`, spaces and newlines |
 | `MessageBubbleTest` | Compose rendering of a bubble and the retry affordance |
 
-> These tests were written but **not executed** here — no Android SDK, no device, no network.
+The JVM tests run in CI on every push and currently all pass (32 tests). The instrumentation
+tests have **not** been executed anywhere yet — they need a device or emulator, which CI does
+not currently provide.
 
 ### Manual device checklist
 
