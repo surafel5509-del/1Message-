@@ -20,7 +20,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -104,7 +107,7 @@ fun AppearanceSettingsRoute(
                         val label = accentLabel(accent)
                         Box(
                             Modifier
-                                .size(44.dp)
+                                .size(46.dp)
                                 .clip(CircleShape)
                                 .background(color)
                                 .border(
@@ -118,7 +121,17 @@ fun AppearanceSettingsRoute(
                                 )
                                 .clickable { viewModel.setAccent(accent) }
                                 .semantics { contentDescription = label },
-                        )
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (selected) {
+                                Icon(
+                                    Icons.Rounded.Check,
+                                    contentDescription = null,
+                                    tint = androidx.compose.ui.graphics.Color.White,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
                     }
                 }
             }

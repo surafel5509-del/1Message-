@@ -180,7 +180,20 @@ jobs:
             done
             echo '```'
             echo
-            echo "Unit tests: see the workflow run. Device behaviour is not tested by CI."
+            # Sum the JUnit XML so the release notes state exactly what ran, not a claim.
+            if ls app/build/test-results/testDebugUnitTest/*.xml >/dev/null 2>&1; then
+              TESTS=$(grep -ho 'tests="[0-9]*"' app/build/test-results/testDebugUnitTest/*.xml | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+              FAILURES=$(grep -ho 'failures="[0-9]*"' app/build/test-results/testDebugUnitTest/*.xml | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+              ERRORS=$(grep -ho 'errors="[0-9]*"' app/build/test-results/testDebugUnitTest/*.xml | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+              SKIPPED=$(grep -ho 'skipped="[0-9]*"' app/build/test-results/testDebugUnitTest/*.xml | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+              echo "### Unit tests (JVM, executed by this run)"
+              echo
+              echo "\`$TESTS\` tests, \`$FAILURES\` failures, \`$ERRORS\` errors, \`$SKIPPED\` skipped — from \`app/build/test-results/testDebugUnitTest\`."
+            else
+              echo "Unit test results were not found; treat the test claim as unverified."
+            fi
+            echo
+            echo "Instrumented (androidTest) suites are **not** executed by CI — no device or emulator is attached. Nothing in this build has run on a real phone."
           } > release-notes.md
           cat release-notes.md
 

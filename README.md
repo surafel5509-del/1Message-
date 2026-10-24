@@ -113,6 +113,25 @@ user actually needs it, and this is the honest mapping:
 | Gate | Onboarding | permission-by-permission rationale, role request, "not now" |
 | Gate | App lock | biometric / device-credential prompt on entry |
 
+### Design system (v2)
+
+The visual layer is token-driven so the whole app can be re-tuned in one place instead of
+per-screen:
+
+| Token group | Where | What changed |
+| --- | --- | --- |
+| Brand | `ui/theme/Color.kt` | aurora gradient `#8B5CFF → #5F6BFF → #2E9BFF` shared by the launcher icon, medallions, the FAB and the composer's send button |
+| Surfaces | `ui/theme/Color.kt` | layered neutrals (`surfaceContainerLow/Lowest/High/Highest`) on a `#F7F5FC` / `#0A0A10` base so cards, sheets and bubbles read as depth instead of outlines |
+| Type | `ui/theme/Type.kt` | platform font with the Amharic fallback preserved, negative tracking on display/headline sizes, consistent line-height trimming |
+| Shape | `ui/theme/Shape.kt` | 10/14/18/22/28 dp radii, plus run-aware bubble shapes that square off on the sender's side when messages are grouped |
+| Motion | `ui/theme/Theme.kt` | `AppMotion(quick = 140, standard = 220, emphasized = 320)` exposed through `LocalMotion`, driven by the reduce-motion setting so every animation flattens together |
+| Components | `ui/components/` | `IconMedallion`, `AuroraMedallion`, `AuroraButton`, `SearchPill`, `SettingsSection`/`SettingsRow`/`SettingsSwitchRow`, `SkeletonRow`, `EmptyState`, `ErrorState`, `PermissionCard` |
+
+The icon set was rebuilt as well: a vector adaptive icon (gradient background, white speech
+bubble inside the 66 dp safe zone), an outlined monochrome layer for Android 13 themed icons,
+the same mark for the splash screen, and a flat white silhouette for the status-bar
+notification. No bitmap densities are shipped, so the icon stays sharp from 1× to 4×.
+
 ### New in this build: scheduling, suggestions, export
 
 * **Send later** — the composer's clock button queues the message in Room
