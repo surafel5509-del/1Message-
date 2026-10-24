@@ -40,9 +40,11 @@ class PhoneNumbersTest {
     }
 
     @Test
-    fun comparisonKey_keepsShortCodesIntact() {
+    fun comparisonKey_usesTheSubscriberNumber() {
         assertThat(PhoneNumbers.comparisonKey("1234")).isEqualTo("1234")
-        assertThat(PhoneNumbers.comparisonKey("+251911234567")).isEqualTo("251911234567")
+        // Last nine digits, so trunk prefixes and country codes do not matter.
+        assertThat(PhoneNumbers.comparisonKey("+251911234567")).isEqualTo("911234567")
+        assertThat(PhoneNumbers.comparisonKey("0911234567")).isEqualTo("911234567")
     }
 
     @Test

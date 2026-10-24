@@ -121,7 +121,11 @@ jobs:
               [ -f "$f" ] || continue
               echo "#### $f"
               echo '```'
-              grep -E "^(e: |w: .*error|error:|ERROR|FAILURE:|\* What went wrong|Execution failed|Caused by|> )" "$f" | head -160 || true
+              if [ "$f" = "build-logs/unit-tests.log" ]; then
+                grep -E "FAILED|Test > |expected|actual|AssertionError|java\.lang|There were failing tests|^[0-9]+ tests? completed" "$f" | head -120 || true
+              else
+                grep -E "^(e: |w: .*error|error:|ERROR|FAILURE:|\* What went wrong|Execution failed|Caused by|> )" "$f" | head -160 || true
+              fi
               echo '```'
             done
           } > /tmp/report.md

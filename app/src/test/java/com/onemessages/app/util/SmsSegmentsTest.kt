@@ -32,7 +32,10 @@ class SmsSegmentsTest {
     @Test
     fun remainingInPartCountsDownAndWraps() {
         assertThat(SmsSegments.remainingInPart("")).isEqualTo(160)
+        assertThat(SmsSegments.remainingInPart("hello")).isEqualTo(155)
         assertThat(SmsSegments.remainingInPart("a".repeat(160))).isEqualTo(0)
-        assertThat(SmsSegments.remainingInPart("a".repeat(161))).isEqualTo(152)
+        assertThat(SmsSegments.remainingInPart("a".repeat(153))).isEqualTo(0)
+        assertThat(SmsSegments.remainingInPart("a".repeat(154))).isEqualTo(152)
+        assertThat(SmsSegments.remainingInPart("ሰ".repeat(70))).isEqualTo(0)
     }
 }

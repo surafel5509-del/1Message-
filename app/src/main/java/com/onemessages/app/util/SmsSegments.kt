@@ -30,17 +30,18 @@ object SmsSegments {
         return (text.length + multipart - 1) / multipart
     }
 
-    /** Remaining characters until the next part boundary, useful for a composer counter. */
+    /**
+     * Characters left before the next part boundary, for a composer counter.
+     * The first part holds 160 (or 70) characters; every part after that holds 153 (or 67).
+     */
     fun remainingInPart(text: String): Int {
-        if (text.isEmpty()) return GSM_SINGLE
         val gsm = isGsm7(text)
         val single = if (gsm) GSM_SINGLE else UCS2_SINGLE
         val multipart = if (gsm) GSM_MULTIPART else UCS2_MULTIPART
-        return if (text.length < single) {
+        return if (text.length <= single) {
             single - text.length
         } else {
-            val used = text.length % multipart
-            if (used == 0) 0 else multipart - used
+            (multipart - (text.length % multipart)) % multipart
         }
     }
 }

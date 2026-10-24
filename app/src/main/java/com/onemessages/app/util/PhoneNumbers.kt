@@ -34,7 +34,9 @@ object PhoneNumbers {
     fun comparisonKey(raw: String): String {
         val digits = digitsOnly(raw)
         if (digits.length <= 9) return digits
-        return digits.takeLast(Math.min(digits.length, 12))
+        // The last nine digits are the subscriber number in most numbering plans (Ethiopia
+        // included), so "0911234567" and "+251911234567" collapse onto the same key.
+        return digits.takeLast(9)
     }
 
     /** True when two numbers plausibly identify the same line. */
