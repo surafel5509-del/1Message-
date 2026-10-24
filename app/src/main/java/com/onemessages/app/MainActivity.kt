@@ -1,5 +1,6 @@
 package com.onemessages.app
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
@@ -9,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.fragment.app.FragmentActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.onemessages.app.core.AppLocale
 import com.onemessages.app.core.Logx
 import com.onemessages.app.ui.AppRoot
 import com.onemessages.app.ui.AppViewModel
@@ -28,6 +30,10 @@ class MainActivity : FragmentActivity() {
 
     /** Set when the app leaves the foreground; used to decide whether the lock should return. */
     private var backgroundedAt = 0L
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()

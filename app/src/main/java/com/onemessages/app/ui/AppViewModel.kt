@@ -1,11 +1,10 @@
 package com.onemessages.app.ui
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.onemessages.app.contacts.ContactsRepository
+import com.onemessages.app.core.AppLocale
 import com.onemessages.app.core.Logx
 import com.onemessages.app.data.preferences.AppSettings
 import com.onemessages.app.data.preferences.SettingsRepository
@@ -149,16 +148,14 @@ class AppViewModel @Inject constructor(
 
     private var appliedLanguage: String? = null
 
+    /**
+     * Persists the language so the next activity creation can wrap its base context. The
+     * activity itself is recreated by the UI layer when this value changes.
+     */
     private fun applyLanguageIfChanged(tag: String) {
         if (appliedLanguage == tag) return
         appliedLanguage = tag
-        val locales = if (tag == "system" || tag.isBlank()) {
-            LocaleListCompat.getEmptyLocaleList()
-        } else {
-            LocaleListCompat.forLanguageTags(tag)
-        }
-        runCatching {
-            AppCompatDelegate.setApplicationLocales(locales)
-        }.onFailure { Logx.w("Locale", "language change failed", it) }
+        runCatching { AppLocale.save(context, tag) }
+            .onFailure { Logx.w("Locale", "language change failed", it) }
     }
 }

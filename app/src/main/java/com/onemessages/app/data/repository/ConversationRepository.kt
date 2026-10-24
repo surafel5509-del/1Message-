@@ -210,6 +210,7 @@ class ConversationRepository @Inject constructor(
                 hasAttachmentsInLastMessage = thread.hasAttachment,
                 isBlocked = meta?.isBlocked == true,
                 priority = meta?.priority == true,
+                customSound = meta?.customSound,
             )
         }
 
@@ -321,6 +322,7 @@ class ConversationRepository @Inject constructor(
             hasAttachmentsInLastMessage = false,
             isBlocked = meta?.isBlocked == true,
             priority = meta?.priority == true,
+            customSound = meta?.customSound,
         )
     }
 
@@ -386,7 +388,7 @@ class ConversationRepository @Inject constructor(
         return MessagePage(enriched, hasMore)
     }
 
-    private fun OutboxEntry.toSyntheticMessage(): Message = Message(
+    private fun com.onemessages.app.data.local.OutboxEntity.toSyntheticMessage(): Message = Message(
         id = -id,
         source = MessageSource.SMS,
         threadId = threadId,

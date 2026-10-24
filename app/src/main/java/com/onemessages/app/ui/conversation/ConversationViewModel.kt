@@ -189,7 +189,7 @@ class ConversationViewModel @Inject constructor(
             )
         }
         // A draft may have been written for this thread earlier in the session.
-        if (!draftInitialised) loadDraft()
+        if (!draftInitialised) viewModelScope.launch { loadDraft() }
     }
 
     private suspend fun loadDraft() {

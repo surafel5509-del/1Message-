@@ -14,7 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Search as SearchIcon
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -79,7 +79,7 @@ fun SearchRoute(
                         modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                         placeholder = { Text(stringResource(R.string.search_hint)) },
                         singleLine = true,
-                        leadingIcon = { Icon(SearchIcon, contentDescription = null) },
+                        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -113,7 +113,7 @@ fun SearchRoute(
                 state.query.length < 2 -> EmptyState(
                     title = stringResource(R.string.search_empty_title),
                     body = stringResource(R.string.search_empty_body),
-                    icon = SearchIcon,
+                    icon = Icons.Rounded.Search,
                 )
                 state.searching -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -121,7 +121,7 @@ fun SearchRoute(
                 state.messages.isEmpty() && state.contacts.isEmpty() -> EmptyState(
                     title = stringResource(R.string.search_no_results_title),
                     body = stringResource(R.string.search_no_results_body),
-                    icon = SearchIcon,
+                    icon = Icons.Rounded.Search,
                 )
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     if (state.contacts.isNotEmpty() && state.scope != SearchScope.MESSAGES) {

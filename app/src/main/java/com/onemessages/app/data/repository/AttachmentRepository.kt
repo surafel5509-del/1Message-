@@ -46,7 +46,7 @@ class AttachmentRepository @Inject constructor(
             } else {
                 AttachmentMetadata(null, null, resolver.getType(uri))
             }
-        }
+        } ?: AttachmentMetadata(null, null, resolver.getType(uri))
     }.getOrElse {
         Logx.w("Attachment", "metadata query failed", it)
         AttachmentMetadata(null, null, resolver.getType(uri))

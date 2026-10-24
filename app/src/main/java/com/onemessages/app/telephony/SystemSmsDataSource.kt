@@ -489,7 +489,7 @@ class SystemSmsDataSource @Inject constructor(
     }.getOrNull()?.takeIf { it > 0 }
 
     /** Message body for an MMS: concatenation of its text parts. */
-    fun loadMmsBody(mmsId: Long): String = runCatching {
+    fun loadMmsBody(mmsId: Long): String = runCatching<String?> {
         resolver.query(
             Telephony.Mms.Part.CONTENT_URI,
             arrayOf(Telephony.Mms.Part.TEXT, Telephony.Mms.Part.CONTENT_TYPE),
@@ -508,7 +508,7 @@ class SystemSmsDataSource @Inject constructor(
                 }
             }
         }
-    }.getOrDefault("")
+    }.getOrNull().orEmpty()
 
     suspend fun loadMessage(id: Long, source: MessageSource): Message? = withContext(Dispatchers.IO) {
         when (source) {
@@ -586,7 +586,7 @@ class SystemSmsDataSource @Inject constructor(
     }.getOrNull()
 
     /** The counterparty address of an MMS lives in its address table with type 137/151. */
-    fun mmsAddress(mmsId: Long): String = runCatching {
+    fun mmsAddress(mmsId: Long): String = runCatching<String?> {
         resolver.query(
             Uri.parse("content://mms/$mmsId/addr"),
             arrayOf("address", "type"),
@@ -603,14 +603,14 @@ class SystemSmsDataSource @Inject constructor(
             }
             fallback
         }
-    }.getOrDefault("")
+    }.getOrNull().orEmpty()
 
     suspend fun mmsAddressAsync(mmsId: Long): String = withContext(Dispatchers.IO) { mmsAddress(mmsId) }
 
     suspend fun threadRecipientAddresses(threadId: Long): List<String> = withContext(Dispatchers.IO) {
         // Threads with a single recipient expose it through the canonical-address join; the
         // most reliable path is the most recent inbound/outbound row.
-        runCatching {
+        runCatching<List<String>> {
             resolver.query(
                 Telephony.Sms.CONTENT_URI,
                 arrayOf(Telephony.Sms.ADDRESS),
@@ -618,7 +618,7 @@ class SystemSmsDataSource @Inject constructor(
                 arrayOf(threadId.toString()),
                 "${Telephony.Sms.DATE} DESC LIMIT 1",
             )?.use { c -> if (c.moveToFirst()) c.getStringOrNull(0)?.let { listOf(it) } ?: emptyList() else emptyList() }
-        }.getOrDefault(emptyList())
+        }.getOrNull().orEmpty()
     }
 
     // ------------------------------------------------------------------------------------

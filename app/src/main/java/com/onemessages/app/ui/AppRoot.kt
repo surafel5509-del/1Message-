@@ -1,6 +1,9 @@
 package com.onemessages.app.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 import android.app.Activity
 import android.content.Intent
@@ -20,6 +23,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +55,15 @@ fun AppRoot(
 
     val context = LocalContext.current
     val activity = context as? Activity
+
+    // The language lives in the base context, so a change only takes effect on recreate.
+    var appliedLanguage by remember { mutableStateOf(settings.languageTag) }
+    LaunchedEffect(settings.languageTag) {
+        if (settings.languageTag != appliedLanguage) {
+            appliedLanguage = settings.languageTag
+            activity?.recreate()
+        }
+    }
     val windowSizeClass = activity?.let { calculateWindowSizeClass(it) }
     val isExpanded = windowSizeClass != null &&
         windowSizeClass.widthSizeClass != WindowWidthSizeClass.Compact

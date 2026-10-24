@@ -39,6 +39,8 @@ data class Conversation(
     val hasAttachmentsInLastMessage: Boolean,
     val isBlocked: Boolean,
     val priority: Boolean,
+    /** Per-conversation notification sound; null means "use the app default". */
+    val customSound: String? = null,
 ) {
     val isUnread: Boolean get() = unreadCount > 0
 }

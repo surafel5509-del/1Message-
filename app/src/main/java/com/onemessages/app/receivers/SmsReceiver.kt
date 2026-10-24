@@ -58,7 +58,9 @@ class SmsReceiver : BroadcastReceiver() {
         val address = first.displayOriginatingAddress ?: first.originatingAddress ?: return
         val body = parts.joinToString(separator = "") { it.displayMessageBody ?: "" }
         val timestamp = first.timestampMillis.takeIf { it > 0 } ?: System.currentTimeMillis()
-        val subId = runCatching { first.subscriptionId }.getOrDefault(-1)
+        val subId = runCatching {
+            android.telephony.SubscriptionManager.getDefaultSmsSubscriptionId()
+        }.getOrDefault(-1)
 
         if (provider.findIncomingDuplicate(address, body, timestamp)) {
             Logx.i("SmsReceiver", "duplicate delivery ignored")
