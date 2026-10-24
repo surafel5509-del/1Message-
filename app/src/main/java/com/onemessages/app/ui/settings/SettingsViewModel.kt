@@ -10,6 +10,7 @@ import com.onemessages.app.data.preferences.DensityMode
 import com.onemessages.app.data.preferences.SettingsRepository
 import com.onemessages.app.data.preferences.ThemeMode
 import com.onemessages.app.data.preferences.WallpaperStyle
+import com.onemessages.app.data.repository.ConversationRepository
 import com.onemessages.app.data.repository.ProviderChangeNotifier
 import com.onemessages.app.model.DeviceTelephonyState
 import com.onemessages.app.model.SmsRoleState
@@ -36,6 +37,7 @@ class SettingsViewModel @Inject constructor(
     private val backupRepository: BackupRepository,
     private val reminderScheduler: ReminderScheduler,
     private val providerNotifier: ProviderChangeNotifier,
+    private val conversationRepository: ConversationRepository,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
@@ -52,6 +54,17 @@ class SettingsViewModel @Inject constructor(
 
     private val _message = MutableStateFlow<Int?>(null)
     val message: StateFlow<Int?> = _message.asStateFlow()
+
+    /** Conversations whose sender the user has blocked; blocking is always reversible. */
+    val blockedSenders: StateFlow<List<com.onemessages.app.model.Conversation>> =
+        conversationRepository.observeBlockedThreads()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun unblockSender(threadId: Long) = launch {
+        conversationRepository.setBlocked(threadId, false)
+        providerNotifier.notifyChanged()
+        _message.value = com.onemessages.app.R.string.blocked_sender_unblocked
+    }
 
     fun refreshTelephony() {
         _roleState.value = roleManager.state()

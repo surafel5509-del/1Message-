@@ -62,6 +62,18 @@ gradle wrapper --gradle-version 8.9
 
 ### Screens
 
+The navigation graph has 16 destinations plus two full-screen gates (onboarding, app lock).
+Where the original brief imagined more granular screens, the functionality lives where the
+user actually needs it, and this is the honest mapping:
+
+| Brief idea | Where it lives | Why |
+| --- | --- | --- |
+| contact detail screen | "Open in contacts" from the conversation menu | Android's own contact UI already does this far better |
+| per-conversation notification/settings screen | conversation overflow menu (mute, pin, priority, block) and one SIM chip in the composer | one tap instead of a screen |
+| blocked senders screen | Privacy & security → Blocked senders (list + unblock) | blocking is reversible without hunting for a separate screen |
+| diagnostics screen | Storage & diagnostics | the log and the storage numbers are the same debugging story |
+| attachment viewer | save/share action on the attachment, plus the picker sheet | pictures are not decoded inside the app because MMS parsing is unavailable (see limitations) |
+
 | Area | Screen | Notes |
 | --- | --- | --- |
 | Inbox | `Chats` | pinned/regular sections, unread-first sorting, multi-select (read, mute, archive, delete), swipe actions, search entry, empty/loading/error states, permission + role banners |
@@ -73,7 +85,7 @@ gradle wrapper --gradle-version 8.9
 | Search | `Search` | message bodies, names and numbers, date hints |
 | Settings | `Appearance` | theme (system/light/dark), 6 accents, bubble style, font scale, density, wallpaper, avatars, haptics, reduced motion, language |
 | Settings | `Notifications` | new-message alerts, previews, lock-screen privacy, grouping, sound picker, vibration, unread reminders with delay, quiet hours, test notification, system settings link |
-| Settings | `Privacy & security` | app lock (BiometricPrompt), hide previews, OTP detection and masking, permission states, threat-model note, delete-all-local-data |
+| Settings | `Privacy & security` | app lock (BiometricPrompt), hide previews, OTP detection and masking, blocked senders with one-tap unblock, permission states, threat-model note, delete-all-local-data |
 | Settings | `SIM & messaging` | preferred SIM, delivery reports, auto-retry, multipart handling, MMS notes, signature, system SIM settings |
 | Settings | `Smart organization` | keyword → category rules, OTP detection, financial-wording warning |
 | Settings | `Backup & restore` | password-encrypted export/import via the Storage Access Framework |

@@ -566,4 +566,5 @@
         <item quantity="other">%1$d unread messages</item>
     </plurals>
     <string name="privacy_lock_continue">Open without the app lock</string>
+    <string name="blocked_sender_unblocked">Sender unblocked</string>
 </resources>

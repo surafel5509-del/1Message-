@@ -47,6 +47,7 @@ fun PrivacySettingsRoute(
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
+    val blockedSenders by viewModel.blockedSenders.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var confirmClear by remember { mutableStateOf(false) }
@@ -115,6 +116,24 @@ fun PrivacySettingsRoute(
                     onCheckedChange = viewModel::setHideOtpDigits,
                     enabled = settings.otpDetectionEnabled,
                 )
+            }
+
+            SettingsSection(stringResource(R.string.blocked_senders)) {
+                if (blockedSenders.isEmpty()) {
+                    SettingsRow(
+                        title = stringResource(R.string.blocked_senders_empty),
+                        subtitle = stringResource(R.string.per_conversation_block_body),
+                    )
+                } else {
+                    blockedSenders.forEach { conversation ->
+                        SettingsRow(
+                            title = conversation.displayName.ifBlank { conversation.address },
+                            subtitle = conversation.address,
+                            trailingText = stringResource(R.string.unblock),
+                            onClick = { viewModel.unblockSender(conversation.threadId) },
+                        )
+                    }
+                }
             }
 
             SettingsSection(stringResource(R.string.privacy_permissions)) {

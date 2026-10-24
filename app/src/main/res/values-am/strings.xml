@@ -563,4 +563,5 @@
     </plurals>
     <string name="storage_usage_value">%1$s</string>
     <string name="privacy_lock_continue">ያለ የመተግበሪያ መቆለፊያ ክፈት</string>
+    <string name="blocked_sender_unblocked">ላኪው ከእግድ ተለቋል</string>
 </resources>
