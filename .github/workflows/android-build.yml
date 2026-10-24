@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -94,6 +95,27 @@ jobs:
         run: |
           set -o pipefail
           gradle :app:assembleRelease --stacktrace --no-daemon 2>&1 | tee build-logs/assemble-release.log
+
+      - name: Publish errors to the diagnostics issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: '1'
+        run: |
+          set -o pipefail
+          {
+            echo "### Run $GITHUB_RUN_ID ($GITHUB_SHA) failed"
+            echo
+            for f in build-logs/compile.log build-logs/unit-tests.log build-logs/assemble-debug.log build-logs/sdk.log; do
+              [ -f "$f" ] || continue
+              echo "#### $f"
+              echo '```'
+              grep -E "^(e: |w: .*error|error:|FAILURE:|\* What went wrong|Execution failed|Caused by|> )" "$f" | head -150 || true
+              echo '```'
+            done
+          } > /tmp/report.md
+          wc -l /tmp/report.md
+          gh issue comment "$ISSUE_NUMBER" --body-file /tmp/report.md
 
       - name: Upload build logs
         if: always()
