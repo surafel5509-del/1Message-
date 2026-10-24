@@ -24,7 +24,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,6 +65,7 @@ fun ContactsRoute(
     var selected by remember { mutableStateOf<DeviceContact?>(null) }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.contacts_title)) },
@@ -81,8 +84,22 @@ fun ContactsRoute(
                 onValueChange = viewModel::setQuery,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 placeholder = { Text(stringResource(R.string.contacts_search_placeholder)) },
-                leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Rounded.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
                 singleLine = true,
+                shape = RoundedCornerShape(22.dp),
+                textStyle = MaterialTheme.typography.bodyLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                ),
             )
             if (!state.hasPermission) {
                 PermissionCard(
