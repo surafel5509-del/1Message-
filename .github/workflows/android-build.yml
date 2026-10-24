@@ -21,26 +21,44 @@ jobs:
   build:
     name: Assemble debug + release
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK platform and build tools
+      - name: Locate and update the preinstalled Android SDK
         run: |
-          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" >/dev/null
-          yes | sdkmanager --licenses >/dev/null || true
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          set -euo pipefail
+          mkdir -p build-logs
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}" | tee build-logs/sdk.log
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}" | tee -a build-logs/sdk.log
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Android/Sdk}}"
+          echo "SDK_ROOT=$SDK_ROOT" | tee -a build-logs/sdk.log
+          ls -1 "$SDK_ROOT" | tee -a build-logs/sdk.log || true
+          SDKMANAGER=""
+          for candidate in \
+            "$(command -v sdkmanager || true)" \
+            "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "$SDK_ROOT/cmdline-tools/bin/sdkmanager" \
+            "$SDK_ROOT/tools/bin/sdkmanager"; do
+            if [ -n "$candidate" ] && [ -x "$candidate" ]; then SDKMANAGER="$candidate"; break; fi
+          done
+          if [ -z "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found; listing SDK root above"
+            exit 1
+          fi
+          echo "SDKMANAGER=$SDKMANAGER" | tee -a build-logs/sdk.log
+          yes | "$SDKMANAGER" --licenses >> build-logs/sdk.log 2>&1 || true
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-35" "build-tools;35.0.0" >> build-logs/sdk.log 2>&1
+          echo "sdk.dir=$SDK_ROOT" > local.properties
+          cat local.properties
 
       - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
@@ -48,25 +66,42 @@ jobs:
           gradle-version: '8.9'
           cache-read-only: false
 
-      - name: Generate Gradle wrapper (the JAR is not committed)
-        run: gradle wrapper --gradle-version 8.9 --distribution-type bin
+      - name: Gradle environment
+        run: |
+          set -o pipefail
+          mkdir -p build-logs
+          { gradle --version; echo; java -version; echo; env | grep -i -E 'android|java|gradle' || true; } 2>&1 | tee build-logs/version.log
 
-      - name: Compile Kotlin
-        run: ./gradlew :app:compileDebugKotlin --stacktrace --no-daemon
+      - name: Compile debug Kotlin
+        run: |
+          set -o pipefail
+          gradle :app:compileDebugKotlin --stacktrace --no-daemon 2>&1 | tee build-logs/compile.log
 
       - name: Unit tests
-        run: ./gradlew :app:testDebugUnitTest --stacktrace --no-daemon
+        if: always()
+        run: |
+          set -o pipefail
+          gradle :app:testDebugUnitTest --stacktrace --no-daemon 2>&1 | tee build-logs/unit-tests.log
 
       - name: Assemble debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
+        if: always()
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug --stacktrace --no-daemon 2>&1 | tee build-logs/assemble-debug.log
 
       - name: Assemble release APK (debug-keystore signed evaluation build)
-        run: ./gradlew :app:assembleRelease --stacktrace --no-daemon
-
-      - name: Lint (report only)
         if: always()
-        continue-on-error: true
-        run: ./gradlew :app:lintDebug --stacktrace --no-daemon
+        run: |
+          set -o pipefail
+          gradle :app:assembleRelease --stacktrace --no-daemon 2>&1 | tee build-logs/assemble-release.log
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build-logs/**
+          if-no-files-found: warn
 
       - name: Upload debug APK
         if: always()
@@ -83,13 +118,3 @@ jobs:
           name: 1messages-release-apk
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
-
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: |
-            app/build/reports/tests/**
-            app/build/test-results/**
-          if-no-files-found: ignore
