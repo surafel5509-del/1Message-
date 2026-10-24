@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Forward
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
@@ -97,7 +98,9 @@ import com.onemessages.app.ui.components.DateSeparator
 import com.onemessages.app.ui.components.MessageBubble
 import com.onemessages.app.ui.components.Pill
 import com.onemessages.app.util.TimeFormatters
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private sealed interface TimelineEntry {
     data class Day(val key: String, val label: String) : TimelineEntry
@@ -149,6 +152,27 @@ fun ConversationRoute(
                     context.getString(if (ok) R.string.attachment_saved else R.string.attachment_save_failed)
                 )
             }
+        }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val transcript = buildTranscript(context, state.displayTitle, state.messages)
+        scope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openOutputStream(uri)?.use { stream ->
+                        stream.write(transcript.toByteArray())
+                    } ?: error("no stream")
+                }.isSuccess
+            }
+            snackbarHostState.showSnackbar(
+                context.getString(
+                    if (ok) R.string.export_conversation_done else R.string.export_conversation_failed
+                )
+            )
         }
     }
 
@@ -246,6 +270,11 @@ fun ConversationRoute(
                     onToggleArchive = viewModel::archiveConversation,
                     onToggleBlock = viewModel::toggleBlock,
                     onDelete = { confirmDeleteConversation = true },
+                    onExport = {
+                        exportLauncher.launch(
+                            "conversation-" + TimeFormatters.fileStamp(System.currentTimeMillis()) + ".txt"
+                        )
+                    },
                     isBlocked = state.blocked,
                 )
             }
@@ -517,6 +546,7 @@ private fun ConversationTopBar(
     onToggleArchive: () -> Unit,
     onToggleBlock: () -> Unit,
     onDelete: () -> Unit,
+    onExport: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
@@ -602,6 +632,11 @@ private fun ConversationTopBar(
                                 )
                             },
                             onClick = { menuOpen = false; onToggleBlock() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.export_conversation)) },
+                            leadingIcon = { Icon(Icons.Rounded.Description, contentDescription = null) },
+                            onClick = { menuOpen = false; onExport() },
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
@@ -841,3 +876,29 @@ private fun buildTimeline(
 
 /** Simple, transparent counter matching how Android splits SMS: 160 for one part, 153 after. */
 
+/**
+ * Plain-text transcript for the share/save flow.
+ *
+ * Built only when the user asks for it and written straight to the document they picked, so the
+ * text never passes through an app cache, log or third party.
+ */
+private fun buildTranscript(
+    context: android.content.Context,
+    title: String,
+    messages: List<Message>,
+): String {
+    val builder = StringBuilder()
+    builder.append(title).append('\n')
+    builder.append(context.getString(R.string.export_conversation)).append('\n')
+    builder.append("\n")
+    val sorted = messages.sortedBy { it.timestamp }
+    sorted.forEach { message ->
+        val who = if (message.direction == Direction.OUTGOING) "me" else title
+        builder.append(TimeFormatters.fullTimestamp(context, message.timestamp))
+        builder.append(" · ").append(who)
+        builder.append('\n')
+        builder.append(message.body)
+        builder.append("\n\n")
+    }
+    return builder.toString()
+}

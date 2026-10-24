@@ -253,7 +253,7 @@ fun ComposerBar(
 }
 
 @Composable
-private fun SendButton(enabled: Boolean, sending: Boolean, dark: Boolean, onClick: () -> Unit) {
+internal fun SendButton(enabled: Boolean, sending: Boolean, dark: Boolean, onClick: () -> Unit) {
     val shape = CircleShape
     val modifier = Modifier
         .size(52.dp)

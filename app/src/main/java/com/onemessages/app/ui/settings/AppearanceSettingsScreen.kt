@@ -62,7 +62,7 @@ fun AppearanceSettingsRoute(
                 title = { Text(stringResource(R.string.settings_appearance)) },
                 navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },

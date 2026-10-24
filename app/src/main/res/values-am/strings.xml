@@ -564,7 +564,6 @@
     <string name="storage_usage_value">%1$s</string>
     <string name="privacy_lock_continue">ያለ የመተግበሪያ መቆለፊያ ክፈት</string>
     <string name="blocked_sender_unblocked">ላኪው ከእግድ ተለቋል</string>
-    <string name="inbox_search_placeholder">መልዕክቶችን ይፈልጉ</string>
     <string name="inbox_all_caught_up">ሁሉንም ጨርሰዋል</string>
     <string name="inbox_section_pinned">የተሰኩ</string>
     <string name="inbox_section_all">ሁሉም መልዕክቶች</string>
@@ -596,4 +595,7 @@
     <string name="smart_reply_see_you_soon">በቅርቡ እንገናኝ</string>
     <string name="smart_replies_settings_title">የተጠቆሙ መልሶች</string>
     <string name="smart_replies_settings_body">መልዕክት ሲመጣ ሶስት አጭር የመልስ አማራጮች ያቅርቡ። ምክሮቹ በዚህ መሣሪያ ላይ ከቃላት ምልክቶች ብቻ ይሰላሉ፤ በፍጹም አይላኩም።</string>
+    <string name="export_conversation">ውይይቱን አውጣ</string>
+    <string name="export_conversation_done">ውይይቱ ተቀምጧል</string>
+    <string name="export_conversation_failed">ውይይቱን ማስቀመጥ አልተቻለም</string>
 </resources>

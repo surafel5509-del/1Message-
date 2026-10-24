@@ -77,7 +77,7 @@ fun SettingsHomeRoute(
                     TextButton(onClick = onBack) { Text(stringResource(R.string.back)) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
@@ -184,14 +184,16 @@ private fun RoleCard(role: SmsRoleState, onRequestRole: () -> Unit) {
         } else {
             MaterialTheme.colorScheme.tertiaryContainer
         },
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        tonalElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Column(Modifier.padding(18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Rounded.Lock,
+                    if (isDefault) Icons.Rounded.Lock else Icons.Rounded.Info,
                     contentDescription = null,
+                    modifier = Modifier.size(18.dp),
                     tint = if (isDefault) {
                         MaterialTheme.colorScheme.onPrimaryContainer
                     } else {

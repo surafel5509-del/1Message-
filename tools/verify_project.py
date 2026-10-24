@@ -35,7 +35,35 @@ def parse_strings(path):
     return strings, plurals
 
 
+def duplicate_resource_names(path):
+    """aapt2 refuses to merge two <string>/<plurals> with the same name in one file.
+
+    Our own string table is generated in several passes, so guard against duplicates here
+    instead of discovering them only when CI reaches the resource merger.
+    """
+    seen, dups = set(), []
+    tree = ET.parse(path)
+    for node in tree.getroot():
+        if node.tag not in ("string", "plurals", "color", "dimen"):
+            continue
+        name = node.attrib.get("name")
+        if name is None:
+            continue
+        key = (node.tag, name)
+        if key in seen:
+            dups.append(f"{node.tag}/{name}")
+        seen.add(key)
+    return dups
+
+
 def main():
+    for rel in ("values/strings.xml", "values-am/strings.xml"):
+        path = os.path.join(RES, rel)
+        if not os.path.exists(path):
+            continue
+        for dup in duplicate_resource_names(path):
+            errors.append(f"{rel}: duplicate resource {dup}")
+
     en_strings, en_plurals = parse_strings(os.path.join(RES, "values/strings.xml"))
     am_path = os.path.join(RES, "values-am/strings.xml")
     am_strings = set()

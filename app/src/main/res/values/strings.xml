@@ -567,7 +567,6 @@
     </plurals>
     <string name="privacy_lock_continue">Open without the app lock</string>
     <string name="blocked_sender_unblocked">Sender unblocked</string>
-    <string name="inbox_search_placeholder">Search messages</string>
     <string name="inbox_all_caught_up">You are all caught up</string>
     <string name="inbox_section_pinned">Pinned</string>
     <string name="inbox_section_all">All messages</string>
@@ -599,4 +598,7 @@
     <string name="smart_reply_see_you_soon">See you soon</string>
     <string name="smart_replies_settings_title">Suggested replies</string>
     <string name="smart_replies_settings_body">Offer three short reply chips when a message arrives. Suggestions are computed on this device from simple word cues and are never uploaded.</string>
+    <string name="export_conversation">Export conversation</string>
+    <string name="export_conversation_done">Conversation saved</string>
+    <string name="export_conversation_failed">Could not save the conversation</string>
 </resources>

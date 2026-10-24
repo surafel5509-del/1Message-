@@ -1,11 +1,16 @@
-@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+)
 package com.onemessages.app.ui.conversation
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,16 +27,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Send
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,15 +49,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.onemessages.app.R
 import com.onemessages.app.ui.components.Avatar
-import com.onemessages.app.ui.components.Pill
 
+/**
+ * Start a new conversation.
+ *
+ * Recipient picking and writing happen on one screen: chips accumulate at the top, the body
+ * field stays pinned to the bottom so the keyboard never hides it, and tapping a contact row
+ * adds them directly (the separate "send to" button was one tap too many).
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun NewMessageRoute(
@@ -66,6 +77,7 @@ fun NewMessageRoute(
     val events by viewModel.events.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val dark = isSystemInDarkTheme()
 
     LaunchedEffect(events) {
         when (val event = events) {
@@ -87,12 +99,11 @@ fun NewMessageRoute(
     }
 
     LaunchedEffect(state.errorRes) {
-        state.errorRes?.let {
-            snackbarHostState.showSnackbar(context.getString(it))
-        }
+        state.errorRes?.let { snackbarHostState.showSnackbar(context.getString(it)) }
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
@@ -103,15 +114,17 @@ fun NewMessageRoute(
                 },
                 title = { Text(stringResource(R.string.new_message_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
         bottomBar = {
-            Surface(color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
-                Column(
-                    Modifier.navigationBarsPadding().imePadding().padding(12.dp)
-                ) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                shadowElevation = 12.dp,
+            ) {
+                Column(Modifier.navigationBarsPadding().imePadding().padding(12.dp)) {
                     Row(verticalAlignment = Alignment.Bottom) {
                         OutlinedTextField(
                             value = state.body,
@@ -120,23 +133,23 @@ fun NewMessageRoute(
                             modifier = Modifier.weight(1f),
                             maxLines = 6,
                             shape = RoundedCornerShape(24.dp),
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
                         )
                         Spacer(Modifier.width(8.dp))
-                        FilledIconButton(
-                            onClick = viewModel::send,
-                            enabled = state.body.isNotBlank() && state.recipients.isNotEmpty() &&
+                        SendButton(
+                            enabled = state.body.isNotBlank() &&
+                                state.recipients.isNotEmpty() &&
                                 !state.sending,
-                        ) {
-                            if (state.sending) {
-                                CircularProgressIndicator(
-                                    Modifier.size(18.dp),
-                                    strokeWidth = 2.dp,
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                )
-                            } else {
-                                Icon(Icons.Rounded.Send, contentDescription = stringResource(R.string.send))
-                            }
-                        }
+                            sending = state.sending,
+                            dark = dark,
+                            onClick = viewModel::send,
+                        )
                     }
                     if (state.recipients.size > 1) {
                         Spacer(Modifier.height(8.dp))
@@ -154,52 +167,50 @@ fun NewMessageRoute(
             OutlinedTextField(
                 value = state.query,
                 onValueChange = viewModel::onQueryChanged,
-                label = { Text(stringResource(R.string.to)) },
                 placeholder = { Text(stringResource(R.string.recipient_hint)) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 singleLine = true,
+                leadingIcon = {
+                    Icon(
+                        Icons.Rounded.PersonAdd,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
                 trailingIcon = {
                     TextButton(onClick = viewModel::addTypedRecipient) {
                         Text(stringResource(R.string.add_recipient))
                     }
                 },
+                shape = RoundedCornerShape(20.dp),
+                textStyle = MaterialTheme.typography.bodyLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                ),
             )
+
             if (state.recipients.isNotEmpty()) {
                 FlowRow(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     state.recipients.forEach { recipient ->
-                        AssistChip(
-                            onClick = { viewModel.removeRecipient(recipient.address) },
-                            label = { Text(recipient.displayName ?: recipient.address) },
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Rounded.Close,
-                                    contentDescription = stringResource(R.string.clear),
-                                    modifier = Modifier.size(16.dp),
-                                )
-                            },
+                        RecipientChip(
+                            label = recipient.displayName ?: recipient.address,
+                            onRemove = { viewModel.removeRecipient(recipient.address) },
                         )
                     }
                 }
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Pill(text = stringResource(R.string.sms_send_hint))
-                    Spacer(Modifier.weight(1f))
-                    Text(
-                        text = stringResource(R.string.group_recipients_title) + " · " +
-                            stringResource(R.string.group_recipients_body),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.width(220.dp),
-                    )
-                }
             }
-            Spacer(Modifier.height(8.dp))
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                modifier = Modifier.padding(top = 8.dp),
+            )
+
             if (state.suggestions.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     Text(
@@ -210,26 +221,12 @@ fun NewMessageRoute(
                     )
                 }
             } else {
-                LazyColumn(Modifier.fillMaxSize()) {
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp)) {
                     items(state.suggestions, key = { it.contactId }) { contact ->
-                        ListItem(
-                            headlineContent = { Text(contact.displayName) },
-                            supportingContent = {
-                                Text(contact.primaryPhone ?: stringResource(R.string.contact_no_number))
-                            },
-                            leadingContent = {
-                                Avatar(
-                                    name = contact.displayName,
-                                    photoUri = contact.photoUri,
-                                    size = 40.dp,
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
                         val phone = contact.primaryPhone
-                        if (phone != null) {
-                            TextButton(
-                                onClick = {
+                        Surface(
+                            onClick = {
+                                if (phone != null) {
                                     viewModel.addRecipient(
                                         Recipient(
                                             address = phone,
@@ -237,14 +234,79 @@ fun NewMessageRoute(
                                             photoUri = contact.photoUri,
                                         )
                                     )
-                                },
-                                modifier = Modifier.padding(start = 16.dp),
+                                }
+                            },
+                            enabled = phone != null,
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(18.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        ) {
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(stringResource(R.string.send_to_number, phone))
+                                Avatar(
+                                    name = contact.displayName,
+                                    photoUri = contact.photoUri,
+                                    size = 42.dp,
+                                )
+                                Spacer(Modifier.width(14.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        text = contact.displayName,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        text = phone ?: stringResource(R.string.contact_no_number),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                if (phone != null) {
+                                    Icon(
+                                        Icons.Rounded.PersonAdd,
+                                        contentDescription = stringResource(R.string.send_to_number, phone),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecipientChip(label: String, onRemove: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Row(
+            Modifier.padding(start = 14.dp, end = 4.dp, top = 2.dp, bottom = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            IconButton(onClick = onRemove, modifier = Modifier.size(30.dp)) {
+                Icon(
+                    Icons.Rounded.Close,
+                    contentDescription = stringResource(R.string.clear),
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
             }
         }
     }

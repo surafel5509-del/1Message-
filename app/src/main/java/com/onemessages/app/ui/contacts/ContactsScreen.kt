@@ -70,7 +70,7 @@ fun ContactsRoute(
                     TextButton(onClick = onBack) { Text(stringResource(R.string.back)) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },

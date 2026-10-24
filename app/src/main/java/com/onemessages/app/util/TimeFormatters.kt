@@ -37,6 +37,10 @@ object TimeFormatters {
         }
     }
 
+    /** Compact, sortable stamp used in exported file names (never shown to the user). */
+    fun fileStamp(millis: Long): String = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm", Locale.US)
+        .format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()))
+
     fun messageTime(context: Context, millis: Long): String {
         val zone = ZoneId.systemDefault()
         val pattern = if (is24Hour(context)) "HH:mm" else "h:mm a"

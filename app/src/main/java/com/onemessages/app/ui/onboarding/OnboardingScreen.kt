@@ -23,7 +23,6 @@ import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.SimCard
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -41,7 +40,8 @@ import androidx.compose.ui.unit.dp
 import com.onemessages.app.R
 import com.onemessages.app.model.SmsRoleState
 import com.onemessages.app.permissions.PermissionGroup
-import com.onemessages.app.ui.components.Avatar
+import com.onemessages.app.ui.components.AuroraButton
+import com.onemessages.app.ui.components.AuroraMedallion
 
 /**
  * First-run flow: what this app is, which permissions it needs and why, and the optional
@@ -68,7 +68,7 @@ fun OnboardingScreen(
         ) {
             Spacer(Modifier.height(24.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Avatar(name = "1", photoUri = null, size = 56.dp, showPhoto = false)
+                AuroraMedallion(icon = Icons.Rounded.ChatBubble, size = 60.dp)
                 Spacer(Modifier.width(16.dp))
                 Column {
                     Text(
@@ -136,12 +136,11 @@ fun OnboardingScreen(
             )
             if (!hasSms) {
                 Spacer(Modifier.height(8.dp))
-                Button(
+                AuroraButton(
+                    text = stringResource(R.string.onboarding_grant_permissions),
                     onClick = { onRequestGroup(PermissionGroup.SMS) },
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.onboarding_grant_permissions))
-                }
+                )
             }
 
             Spacer(Modifier.height(28.dp))
@@ -184,12 +183,12 @@ fun OnboardingScreen(
             }
 
             Spacer(Modifier.height(28.dp))
-            Button(
+            AuroraButton(
+                text = stringResource(R.string.onboarding_finish),
                 onClick = onFinish,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-            ) {
-                Text(stringResource(R.string.onboarding_finish))
-            }
+                icon = Icons.Rounded.CheckCircle,
+                modifier = Modifier.fillMaxWidth(),
+            )
             if (!hasSms) {
                 Text(
                     text = stringResource(R.string.onboarding_not_default),

@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -629,5 +630,56 @@ fun SoftButton(
             Spacer(Modifier.width(8.dp))
         }
         Text(text)
+    }
+}
+
+/**
+ * Primary call to action on the aurora gradient.
+ *
+ * Used sparingly (onboarding, empty states) so the gradient stays special: if every button had
+ * it, the send button in the composer would stop reading as the main action of the screen.
+ */
+@Composable
+fun AuroraButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true,
+) {
+    val dark = isSystemInDarkTheme()
+    val shape = RoundedCornerShape(18.dp)
+    Box(
+        modifier = modifier
+            .height(52.dp)
+            .clip(shape)
+            .background(
+                if (enabled) {
+                    auroraBrush(dark)
+                } else {
+                    SolidColor(MaterialTheme.colorScheme.surfaceContainerHighest)
+                },
+                shape,
+            )
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(10.dp))
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleSmall,
+                color = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
