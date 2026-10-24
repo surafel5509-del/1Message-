@@ -2,6 +2,8 @@ package com.onemessages.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -34,15 +36,27 @@ fun Avatar(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp,
     showPhoto: Boolean = true,
+    ring: Boolean = false,
 ) {
     val initials = remember(name) { initialsOf(name) }
     val gradient = remember(name) { gradientFor(name) }
     val photo = if (showPhoto) rememberContactPhoto(photoUri) else null
     val description = androidx.compose.ui.platform.LocalContext.current
         .getString(R.string.cd_contact_avatar, name.ifBlank { "#" })
+    val ringColor = MaterialTheme.colorScheme.surface
     Box(
         modifier = modifier
             .size(size)
+            .then(
+                if (ring) {
+                    Modifier
+                        .clip(CircleShape)
+                        .background(ringColor)
+                        .padding(3.dp)
+                } else {
+                    Modifier
+                }
+            )
             .clip(CircleShape)
             .background(Brush.linearGradient(gradient))
             .clearAndSetSemantics { contentDescription = description },
@@ -53,7 +67,7 @@ fun Avatar(
                 bitmap = photo,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(size).clip(CircleShape),
+                modifier = Modifier.matchParentSize().clip(CircleShape),
             )
         } else {
             Text(
@@ -83,8 +97,8 @@ fun initialsOf(name: String): String {
 
 private fun gradientFor(seed: String): List<Color> {
     val palettes = listOf(
-        listOf(Brand.ElectricViolet, Color(0xFF9C7BFF)),
-        listOf(Brand.SkyBlue, Color(0xFF63C4FF)),
+        listOf(Brand.AuroraStart, Brand.AuroraMid),
+        listOf(Brand.SkyBlue, Color(0xFF6FC9FF)),
         listOf(Color(0xFF2ED3A3), Color(0xFF12A180)),
         listOf(Color(0xFFFF8A65), Color(0xFFE2572B)),
         listOf(Color(0xFFF062A5), Color(0xFFB8306B)),

@@ -119,6 +119,8 @@ class SettingsViewModel @Inject constructor(
     fun setGroupAsMms(value: Boolean) = launch { settingsRepository.setGroupAsMms(value) }
     fun setSignature(value: String) = launch { settingsRepository.setSignature(value) }
 
+    fun setSmartReplies(value: Boolean) = launch { settingsRepository.setSmartReplies(value) }
+
     fun sendTestNotification() = launch {
         _testResult.value = notifier.showTestNotification()
     }

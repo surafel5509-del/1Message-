@@ -9,6 +9,7 @@ import com.onemessages.app.data.local.DiagnosticsDao
 import com.onemessages.app.data.local.DraftDao
 import com.onemessages.app.data.local.OneMessagesDatabase
 import com.onemessages.app.data.local.OutboxDao
+import com.onemessages.app.data.local.ScheduledMessageDao
 import com.onemessages.app.data.local.StarredMessageDao
 import dagger.Module
 import dagger.Provides
@@ -56,6 +57,9 @@ object AppModule {
 
     @Provides
     fun provideStarredMessageDao(db: OneMessagesDatabase): StarredMessageDao = db.starredMessageDao()
+
+    @Provides
+    fun provideScheduledMessageDao(db: OneMessagesDatabase): ScheduledMessageDao = db.scheduledMessageDao()
 
     @Provides
     @Singleton

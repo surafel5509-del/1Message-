@@ -13,6 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         DiagnosticEntity::class,
         OutboxEntity::class,
         StarredMessageEntity::class,
+        ScheduledMessageEntity::class,
     ],
     version = OneMessagesDatabase.VERSION,
     exportSchema = true,
@@ -24,10 +25,11 @@ abstract class OneMessagesDatabase : RoomDatabase() {
     abstract fun diagnosticsDao(): DiagnosticsDao
     abstract fun outboxDao(): OutboxDao
     abstract fun starredMessageDao(): StarredMessageDao
+    abstract fun scheduledMessageDao(): ScheduledMessageDao
 
     companion object {
         const val NAME = "onemessages.db"
-        const val VERSION = 2
+        const val VERSION = 3
 
         /**
          * v2 added per-conversation blocking, priority notifications and category overrides.
@@ -62,7 +64,35 @@ abstract class OneMessagesDatabase : RoomDatabase() {
             }
         }
 
+        /** v3 adds "send later": messages waiting for their scheduled moment. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `scheduled_messages` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `threadId` INTEGER NOT NULL,
+                        `address` TEXT NOT NULL,
+                        `body` TEXT NOT NULL,
+                        `subscriptionId` INTEGER NOT NULL,
+                        `scheduledAt` INTEGER NOT NULL,
+                        `createdAt` INTEGER NOT NULL,
+                        `lastError` TEXT
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_scheduled_messages_scheduledAt` " +
+                        "ON `scheduled_messages` (`scheduledAt`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_scheduled_messages_threadId` " +
+                        "ON `scheduled_messages` (`threadId`)"
+                )
+            }
+        }
+
         /** Applied only on fresh installs / destructive test harnesses. */
-        val ALL_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2)
+        val ALL_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
     }
 }

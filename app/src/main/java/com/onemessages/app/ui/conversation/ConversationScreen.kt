@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -84,13 +85,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.onemessages.app.R
-import com.onemessages.app.util.SmsSegments
 import com.onemessages.app.model.Attachment
 import com.onemessages.app.model.ContactIdentity
 import com.onemessages.app.model.Direction
 import com.onemessages.app.model.Message
 import com.onemessages.app.model.SendFailureReason
-import com.onemessages.app.model.SimInfo
 import com.onemessages.app.ui.components.Avatar
 import com.onemessages.app.ui.components.ConfirmDialog
 import com.onemessages.app.ui.components.ConversationBackground
@@ -135,6 +134,8 @@ fun ConversationRoute(
     var searchOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var pendingSave by remember { mutableStateOf<Attachment?>(null) }
+    var showScheduleDialog by remember { mutableStateOf(false) }
+    var showScheduledSheet by remember { mutableStateOf(false) }
 
     val saveLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("*/*")
@@ -256,10 +257,15 @@ fun ConversationRoute(
                     sending = state.sending,
                     sims = state.sims,
                     selectedSimId = state.selectedSimId,
+                    smartReplies = state.smartReplies,
+                    scheduledCount = state.scheduled.size,
                     onDraftChange = viewModel::onDraftChanged,
                     onSelectSim = viewModel::selectSim,
                     onSend = viewModel::send,
                     onAttach = { showAttachmentSheet = true },
+                    onScheduleClick = { showScheduleDialog = true },
+                    onSmartReply = viewModel::applySmartReply,
+                    onOpenScheduled = { showScheduledSheet = true },
                     onBlocked = state.blocked,
                 )
             }
@@ -445,6 +451,28 @@ fun ConversationRoute(
         )
     }
 
+    if (showScheduleDialog) {
+        ScheduleSendDialog(
+            onDismiss = { showScheduleDialog = false },
+            onConfirm = { at ->
+                showScheduleDialog = false
+                viewModel.scheduleSend(at)
+            },
+        )
+    }
+
+    if (showScheduledSheet) {
+        ScheduledMessagesSheet(
+            scheduled = state.scheduled,
+            onDismiss = { showScheduledSheet = false },
+            onSendNow = { message ->
+                viewModel.sendScheduledNow(message)
+                showScheduledSheet = false
+            },
+            onCancel = viewModel::cancelScheduled,
+        )
+    }
+
     if (showAttachmentSheet) {
         AttachmentSheet(
             onDismiss = { showAttachmentSheet = false },
@@ -491,18 +519,20 @@ private fun ConversationTopBar(
     onDelete: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
-    TopAppBar(
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.back))
-            }
-        },
-        title = {
+    Surface(color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
+        Column {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .height(64.dp)
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
             ) {
-                Avatar(name = title, photoUri = photoUri, size = 36.dp, showPhoto = showPhoto)
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.back))
+                }
+                Avatar(name = title, photoUri = photoUri, size = 38.dp, showPhoto = showPhoto)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -511,88 +541,88 @@ private fun ConversationTopBar(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Text(
-                        text = address,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                    )
-                }
-            }
-        },
-        actions = {
-            if (isMuted) {
-                Icon(
-                    Icons.Rounded.VolumeOff,
-                    contentDescription = stringResource(R.string.cd_muted),
-                    modifier = Modifier.size(18.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            IconButton(onClick = onSearch) {
-                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search))
-            }
-            IconButton(onClick = onCall) {
-                Icon(Icons.Rounded.Call, contentDescription = stringResource(R.string.call))
-            }
-            Box {
-                IconButton(onClick = { menuOpen = true }) {
-                    Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more))
-                }
-                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.contact_details)) },
-                        onClick = { menuOpen = false; onOpenContact() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.mark_unread)) },
-                        onClick = { menuOpen = false; onMarkUnread() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(if (isMuted) R.string.unmute else R.string.mute)) },
-                        onClick = { menuOpen = false; onToggleMute() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.pin)) },
-                        leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
-                        onClick = { menuOpen = false; onTogglePin() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.archive)) },
-                        onClick = { menuOpen = false; onToggleArchive() },
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                stringResource(
-                                    if (isBlocked) R.string.per_conversation_unblock
-                                    else R.string.per_conversation_block
-                                )
-                            )
-                        },
-                        onClick = { menuOpen = false; onToggleBlock() },
-                    )
-                    HorizontalDivider()
-                    DropdownMenuItem(
-                        text = {
-                            Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
-                        },
-                        leadingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (isMuted) {
                             Icon(
-                                Icons.Rounded.Delete,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
+                                Icons.Rounded.VolumeOff,
+                                contentDescription = stringResource(R.string.cd_muted),
+                                modifier = Modifier.size(12.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                        },
-                        onClick = { menuOpen = false; onDelete() },
-                    )
+                            Spacer(Modifier.width(4.dp))
+                        }
+                        Text(
+                            text = address,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                IconButton(onClick = onSearch) {
+                    Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search))
+                }
+                IconButton(onClick = onCall) {
+                    Icon(Icons.Rounded.Call, contentDescription = stringResource(R.string.call))
+                }
+                Box {
+                    IconButton(onClick = { menuOpen = true }) {
+                        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more))
+                    }
+                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.contact_details)) },
+                            onClick = { menuOpen = false; onOpenContact() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.mark_unread)) },
+                            onClick = { menuOpen = false; onMarkUnread() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(if (isMuted) R.string.unmute else R.string.mute)) },
+                            onClick = { menuOpen = false; onToggleMute() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.pin)) },
+                            leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
+                            onClick = { menuOpen = false; onTogglePin() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.archive)) },
+                            onClick = { menuOpen = false; onToggleArchive() },
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    stringResource(
+                                        if (isBlocked) R.string.per_conversation_unblock
+                                        else R.string.per_conversation_block
+                                    )
+                                )
+                            },
+                            onClick = { menuOpen = false; onToggleBlock() },
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Rounded.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            },
+                            onClick = { menuOpen = false; onDelete() },
+                        )
+                    }
                 }
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-    )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -614,7 +644,7 @@ private fun SearchInConversationBar(query: String, onQueryChange: (String) -> Un
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
     )
 }
@@ -637,125 +667,6 @@ private fun SheetAction(
         Icon(icon, contentDescription = null, tint = tint)
         Spacer(Modifier.width(16.dp))
         Text(label, style = MaterialTheme.typography.bodyLarge, color = tint)
-    }
-}
-
-@Composable
-private fun ComposerBar(
-    draft: String,
-    sending: Boolean,
-    sims: List<SimInfo>,
-    selectedSimId: Int,
-    onDraftChange: (String) -> Unit,
-    onSelectSim: (Int) -> Unit,
-    onSend: () -> Unit,
-    onAttach: () -> Unit,
-    onBlocked: Boolean,
-) {
-    var simMenuOpen by remember { mutableStateOf(false) }
-    val segments = remember(draft) { SmsSegments.estimate(draft) }
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.navigationBarsPadding().imePadding().padding(horizontal = 12.dp, vertical = 8.dp)) {
-            if (draft.length > 100) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Text(
-                        text = if (segments > 1) {
-                            stringResource(R.string.composer_segments, draft.length, segments)
-                        } else {
-                            stringResource(R.string.composer_chars, draft.length)
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Row(verticalAlignment = Alignment.Bottom) {
-                IconButton(onClick = onAttach, enabled = !onBlocked) {
-                    Icon(Icons.Rounded.AttachFile, contentDescription = stringResource(R.string.attach))
-                }
-                OutlinedTextField(
-                    value = draft,
-                    onValueChange = onDraftChange,
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.message_placeholder)) },
-                    maxLines = 6,
-                    shape = RoundedCornerShape(24.dp),
-                    enabled = !onBlocked,
-                )
-                Spacer(Modifier.width(8.dp))
-                FilledIconButton(
-                    onClick = onSend,
-                    enabled = draft.isNotBlank() && !sending && sims.isNotEmpty() && !onBlocked,
-                ) {
-                    if (sending) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    } else {
-                        Icon(Icons.Rounded.Send, contentDescription = stringResource(R.string.cd_send_message))
-                    }
-                }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box {
-                    Surface(
-                        shape = RoundedCornerShape(999.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        modifier = Modifier.clip(RoundedCornerShape(999.dp)),
-                    ) {
-                        TextButton(onClick = { simMenuOpen = true }, enabled = sims.size > 1) {
-                            Icon(
-                                Icons.Rounded.Call,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = sims.firstOrNull { it.subscriptionId == selectedSimId }?.let {
-                                    if (sims.size > 1) {
-                                        stringResource(R.string.sim_number_short, it.slotIndex + 1)
-                                    } else {
-                                        it.label
-                                    }
-                                } ?: stringResource(R.string.sim_none),
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        }
-                    }
-                    DropdownMenu(expanded = simMenuOpen, onDismissRequest = { simMenuOpen = false }) {
-                        sims.forEach { sim ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        stringResource(
-                                            R.string.sim_number,
-                                            sim.slotIndex + 1,
-                                            sim.label,
-                                        )
-                                    )
-                                },
-                                onClick = {
-                                    onSelectSim(sim.subscriptionId)
-                                    simMenuOpen = false
-                                },
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = stringResource(R.string.sms_send_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
     }
 }
 

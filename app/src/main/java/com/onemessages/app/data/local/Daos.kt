@@ -186,3 +186,37 @@ interface StarredMessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(entities: List<StarredMessageEntity>)
 }
+
+@Dao
+interface ScheduledMessageDao {
+
+    @Query("SELECT * FROM scheduled_messages ORDER BY scheduledAt ASC")
+    fun observeAll(): Flow<List<ScheduledMessageEntity>>
+
+    @Query("SELECT * FROM scheduled_messages WHERE threadId = :threadId ORDER BY scheduledAt ASC")
+    fun observeForThread(threadId: Long): Flow<List<ScheduledMessageEntity>>
+
+    @Query("SELECT * FROM scheduled_messages WHERE id = :id LIMIT 1")
+    suspend fun get(id: Long): ScheduledMessageEntity?
+
+    @Query("SELECT * FROM scheduled_messages ORDER BY scheduledAt ASC")
+    suspend fun snapshot(): List<ScheduledMessageEntity>
+
+    @Insert
+    suspend fun insert(entity: ScheduledMessageEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entities: List<ScheduledMessageEntity>)
+
+    @Query("UPDATE scheduled_messages SET lastError = :error WHERE id = :id")
+    suspend fun setError(id: Long, error: String?)
+
+    @Query("UPDATE scheduled_messages SET scheduledAt = :sendAt WHERE id = :id")
+    suspend fun reschedule(id: Long, sendAt: Long)
+
+    @Query("DELETE FROM scheduled_messages WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM scheduled_messages")
+    suspend fun clear()
+}

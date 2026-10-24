@@ -1,6 +1,7 @@
 package com.onemessages.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -16,6 +17,21 @@ val LocalConversationColors = staticCompositionLocalOf<ConversationColors> {
     error("ConversationColors not provided")
 }
 val LocalReducedMotion = staticCompositionLocalOf { false }
+
+/**
+ * Motion tokens. Every animation in the app reads its duration from here so the
+ * "reduce motion" setting can flatten the whole UI in one place.
+ */
+data class AppMotion(
+    val quick: Int = 140,
+    val standard: Int = 220,
+    val emphasized: Int = 320,
+    val enabled: Boolean = true,
+) {
+    fun duration(base: Int): Int = if (enabled) base else 0
+}
+
+val LocalMotion = staticCompositionLocalOf { AppMotion() }
 
 data class MessageSpacing(
     val horizontalPadding: Int,
@@ -49,7 +65,10 @@ fun OneMessagesTheme(
     }
     // Our own font-scale setting is applied through the typography set above; Compose already
     // scales sp by the system font scale, which is what we want for accessibility.
+    val motion = AppMotion(enabled = !settings.reducedMotion)
+
     CompositionLocalProvider(
+        LocalMotion provides motion,
         LocalAppSettings provides settings,
         LocalConversationColors provides conversationColors,
         LocalReducedMotion provides settings.reducedMotion,
@@ -64,6 +83,15 @@ fun OneMessagesTheme(
         }
     }
 }
+
+/** Aurora brush for hero headers, medallions and the compose button. */
+fun auroraBrush(dark: Boolean): Brush = Brush.linearGradient(
+    listOf(
+        Brand.AuroraStart.copy(alpha = if (dark) 0.95f else 1f),
+        Brand.AuroraMid,
+        Brand.AuroraEnd,
+    ),
+)
 
 @Composable
 fun scopedDensity(scale: Float): Density {

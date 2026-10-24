@@ -90,3 +90,23 @@ data class StarredMessageEntity(
     val source: String,
     val addedAt: Long = System.currentTimeMillis(),
 )
+
+/**
+ * A message the user asked to send later.
+ *
+ * The body is stored here (unlike messages that already exist in Android's provider) because
+ * the message does not exist anywhere else until the scheduled worker actually sends it. The
+ * row is deleted the moment the platform accepts the send; if the send is rejected the row stays
+ * with [lastError] set so the UI can explain what happened instead of silently losing the text.
+ */
+@Entity(tableName = "scheduled_messages", indices = [Index(value = ["scheduledAt"]), Index(value = ["threadId"])])
+data class ScheduledMessageEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val threadId: Long,
+    val address: String,
+    val body: String,
+    val subscriptionId: Int,
+    val scheduledAt: Long,
+    val createdAt: Long = System.currentTimeMillis(),
+    val lastError: String? = null,
+)

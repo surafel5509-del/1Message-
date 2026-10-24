@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -119,6 +121,16 @@ fun MessagingSettingsRoute(
                 SettingsRow(
                     title = stringResource(R.string.sim_settings_multipart),
                     subtitle = stringResource(R.string.sim_settings_multipart_body),
+                )
+            }
+
+            SettingsSection(stringResource(R.string.smart_replies_label)) {
+                SettingsSwitchRow(
+                    title = stringResource(R.string.smart_replies_settings_title),
+                    subtitle = stringResource(R.string.smart_replies_settings_body),
+                    checked = settings.smartRepliesEnabled,
+                    onCheckedChange = viewModel::setSmartReplies,
+                    icon = Icons.Rounded.AutoAwesome,
                 )
             }
 

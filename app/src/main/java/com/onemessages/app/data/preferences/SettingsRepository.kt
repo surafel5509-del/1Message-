@@ -63,6 +63,7 @@ class SettingsRepository @Inject constructor(
 
         val categoriesEnabled = booleanPreferencesKey("categories_enabled")
         val markReadOnOpen = booleanPreferencesKey("mark_read_on_open")
+        val smartReplies = booleanPreferencesKey("smart_replies")
 
         val preferredSubId = intPreferencesKey("preferred_sub_id")
         val deliveryReports = booleanPreferencesKey("delivery_reports")
@@ -125,6 +126,8 @@ class SettingsRepository @Inject constructor(
     suspend fun setCategoriesEnabled(value: Boolean) = edit { it[Keys.categoriesEnabled] = value }
     suspend fun setMarkReadOnOpen(value: Boolean) = edit { it[Keys.markReadOnOpen] = value }
 
+    suspend fun setSmartReplies(value: Boolean) = edit { it[Keys.smartReplies] = value }
+
     suspend fun setPreferredSubscriptionId(value: Int) = edit { it[Keys.preferredSubId] = value }
     suspend fun setDeliveryReports(value: Boolean) = edit { it[Keys.deliveryReports] = value }
     suspend fun setAutoRetry(value: Boolean) = edit { it[Keys.autoRetry] = value }
@@ -178,6 +181,7 @@ class SettingsRepository @Inject constructor(
             hideOtpDigits = bool(Keys.hideOtpDigits, false),
             categoriesEnabled = bool(Keys.categoriesEnabled, false),
             markReadOnOpen = bool(Keys.markReadOnOpen, true),
+            smartRepliesEnabled = bool(Keys.smartReplies, true),
             preferredSubscriptionId = int(Keys.preferredSubId, -1),
             requestDeliveryReports = bool(Keys.deliveryReports, false),
             autoRetryFailedSends = bool(Keys.autoRetry, true),

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.DoneAll
@@ -44,10 +45,17 @@ import com.onemessages.app.model.Conversation
 import com.onemessages.app.model.Direction
 import com.onemessages.app.model.MessageStatus
 import com.onemessages.app.ui.components.Avatar
-import com.onemessages.app.ui.components.Pill
 import com.onemessages.app.ui.theme.LocalAppSettings
 import com.onemessages.app.util.TimeFormatters
 
+/**
+ * One conversation in the inbox.
+ *
+ * Hierarchy mirrors how people scan a list: who it is (avatar + name), what they said (snippet),
+ * when it happened (right edge), and only then the metadata (unread count, mute, pin, status).
+ * Unread rows get a weightier name, a tinted snippet and an accent count badge instead of a
+ * colour change on the whole row, which keeps the list calm.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConversationRow(
@@ -70,43 +78,57 @@ fun ConversationRow(
     val rowDescription = context.getString(R.string.cd_open_conversation, conversation.displayName)
 
     Surface(
-        color = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-        } else {
-            Color.Transparent
+        color = when {
+            isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+            else -> Color.Transparent
         },
-        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 1.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 12.dp, vertical = 13.dp)
                 .semantics { contentDescription = rowDescription },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (selectionMode) {
                 Checkbox(checked = isSelected, onCheckedChange = { onClick() })
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
             }
-            Avatar(
-                name = conversation.displayName,
-                photoUri = conversation.photoUri,
-                size = 52.dp,
-                showPhoto = settings.showAvatars,
-            )
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (conversation.isPinned) {
+            Box {
+                Avatar(
+                    name = conversation.displayName,
+                    photoUri = conversation.photoUri,
+                    size = 52.dp,
+                    showPhoto = settings.showAvatars,
+                    ring = unread && !selectionMode,
+                )
+                if (conversation.isPinned && !selectionMode) {
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         Icon(
                             Icons.Rounded.PushPin,
                             contentDescription = stringResource(R.string.cd_pinned),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(10.dp),
                         )
-                        Spacer(Modifier.width(4.dp))
                     }
+                }
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = conversation.displayName,
                         style = MaterialTheme.typography.titleSmall,
@@ -116,61 +138,56 @@ fun ConversationRow(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (conversation.isGroup) {
-                        Spacer(Modifier.width(6.dp))
-                        Pill(text = conversation.recipientIds.size.toString())
-                    }
-                    Spacer(Modifier.weight(1f))
-                    Text(
-                        text = TimeFormatters.inboxTimestamp(context, conversation.lastTimestamp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (unread) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (conversation.hasDraft) {
-                        Text(
-                            text = stringResource(R.string.draft) + " · ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                    if (conversation.lastDirection == Direction.OUTGOING &&
-                        conversation.lastMessageStatus == MessageStatus.FAILED
-                    ) {
-                        Icon(
-                            Icons.Rounded.ErrorOutline,
-                            contentDescription = stringResource(R.string.failed),
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(14.dp),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                    }
-                    Text(
-                        text = snippetText.ifBlank { stringResource(R.string.conversation_empty_title) },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (unread) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                    )
                     if (conversation.isMuted) {
                         Spacer(Modifier.width(6.dp))
                         Icon(
                             Icons.Rounded.VolumeOff,
                             contentDescription = stringResource(R.string.cd_muted),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(15.dp),
+                            tint = MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(14.dp),
                         )
                     }
-                    if (unread && !conversation.isMuted) {
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = TimeFormatters.inboxTimestamp(context, conversation.lastTimestamp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (unread) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        fontWeight = if (unread) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
+                Spacer(Modifier.height(3.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (conversation.hasDraft) {
+                        Text(
+                            text = stringResource(R.string.draft),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                    } else if (conversation.lastDirection == Direction.OUTGOING) {
+                        StatusTicks(conversation.lastMessageStatus)
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text(
+                        text = snippetText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (unread) FontWeight.Medium else FontWeight.Normal,
+                        color = if (unread) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (unread) {
                         Spacer(Modifier.width(8.dp))
-                        UnreadBadge(conversation.unreadCount)
+                        UnreadBadge(count = conversation.unreadCount)
                     }
                 }
             }
@@ -180,32 +197,36 @@ fun ConversationRow(
 
 @Composable
 private fun UnreadBadge(count: Int) {
-    val context = LocalContext.current
-    Box(
-        modifier = Modifier
-            .size(22.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary)
-            .semantics { contentDescription = context.getString(R.string.cd_unread_badge, count) },
-        contentAlignment = Alignment.Center,
+    val label = if (count > 99) "99+" else count.toString()
+    Surface(
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
     ) {
-        Text(
-            text = if (count > 99) "99+" else count.toString(),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimary,
-            fontWeight = FontWeight.SemiBold,
-        )
+        Box(
+            modifier = Modifier
+                .height(20.dp)
+                .width(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+            )
+        }
     }
 }
 
 @Composable
-fun MessageStateIcon(status: MessageStatus, modifier: Modifier = Modifier) {
+private fun StatusTicks(status: MessageStatus) {
     val (icon, description) = when (status) {
-        MessageStatus.SENDING, MessageStatus.QUEUED ->
-            Icons.Rounded.Schedule to stringResource(R.string.sending)
         MessageStatus.SENT -> Icons.Rounded.Done to stringResource(R.string.sent)
         MessageStatus.DELIVERED -> Icons.Rounded.DoneAll to stringResource(R.string.delivered)
         MessageStatus.FAILED -> Icons.Rounded.ErrorOutline to stringResource(R.string.failed)
+        MessageStatus.SENDING, MessageStatus.QUEUED ->
+            Icons.Rounded.Schedule to stringResource(R.string.sending)
         else -> return
     }
     Icon(
@@ -214,8 +235,8 @@ fun MessageStateIcon(status: MessageStatus, modifier: Modifier = Modifier) {
         tint = if (status == MessageStatus.FAILED) {
             MaterialTheme.colorScheme.error
         } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)
         },
-        modifier = modifier.size(14.dp),
+        modifier = Modifier.size(15.dp),
     )
 }

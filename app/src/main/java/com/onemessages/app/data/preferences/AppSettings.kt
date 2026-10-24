@@ -49,6 +49,7 @@ data class AppSettings(
     // Organization
     val categoriesEnabled: Boolean = false,
     val markReadOnOpen: Boolean = true,
+    val smartRepliesEnabled: Boolean = true,
 
     // SIM & messaging
     val preferredSubscriptionId: Int = -1,

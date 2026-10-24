@@ -1,6 +1,11 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class,
+)
 package com.onemessages.app.ui.inbox
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,24 +18,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Archive
+import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.VolumeOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,8 +51,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +64,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,17 +74,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.onemessages.app.R
 import com.onemessages.app.model.Conversation
+import com.onemessages.app.model.ConversationSort
 import com.onemessages.app.model.InboxFilter
 import com.onemessages.app.model.SmsRoleState
 import com.onemessages.app.ui.components.ConfirmDialog
 import com.onemessages.app.ui.components.EmptyState
 import com.onemessages.app.ui.components.ErrorState
 import com.onemessages.app.ui.components.PermissionCard
-import androidx.compose.material.icons.rounded.ChatBubbleOutline
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Star
+import com.onemessages.app.ui.components.SearchPill
+import com.onemessages.app.ui.components.SectionHeader
+import com.onemessages.app.ui.components.SkeletonRow
 
-private const val EMPTY_TOP_PADDING = 72
+private const val EMPTY_TOP_PADDING = 40
 
 @Composable
 fun InboxRoute(
@@ -126,19 +145,23 @@ fun InboxRoute(
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            if (!state.isSelecting && hasSmsPermission) {
+            AnimatedVisibility(visible = !state.isSelecting && hasSmsPermission) {
                 ExtendedFloatingActionButton(
                     onClick = onCompose,
                     icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                     text = { Text(stringResource(R.string.compose_new)) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.padding(4.dp),
                 )
             }
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).statusBarsPadding()) {
             if (state.isSelecting) {
                 SelectionTopBar(
                     count = state.selection.size,
@@ -149,21 +172,27 @@ fun InboxRoute(
                     onDelete = { confirmBulkDelete = true },
                 )
             } else {
-                InboxTopBar(
-                    unread = state.totalUnread,
+                InboxHeader(
                     filter = state.filter,
+                    unread = state.totalUnread,
                     onSearch = onSearch,
+                    archivedEnabled = state.filter != InboxFilter.ARCHIVED,
                     onSortUnreadFirst = {
                         viewModel.setSort(
-                            if (state.sort == com.onemessages.app.model.ConversationSort.RECENT) {
-                                com.onemessages.app.model.ConversationSort.UNREAD_FIRST
+                            if (state.sort == ConversationSort.RECENT) {
+                                ConversationSort.UNREAD_FIRST
                             } else {
-                                com.onemessages.app.model.ConversationSort.RECENT
+                                ConversationSort.RECENT
                             }
                         )
                     },
                     onOpenArchived = onOpenArchived,
                     onSettings = onOpenSettings,
+                )
+                SearchPill(
+                    hint = stringResource(R.string.inbox_search_placeholder),
+                    onClick = onSearch,
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp),
                 )
             }
 
@@ -179,14 +208,13 @@ fun InboxRoute(
                 RoleBanner(onRequestRole)
             }
 
-            FilterRow(
-                selected = state.filter,
-                onSelect = viewModel::setFilter,
-            )
+            if (!state.isSelecting && state.filter != InboxFilter.ARCHIVED) {
+                FilterChips(selected = state.filter, onSelect = viewModel::setFilter)
+            }
 
             Box(Modifier.weight(1f)) {
                 when {
-                    state.loading && state.conversations.isEmpty() -> LoadingState()
+                    state.loading && state.conversations.isEmpty() -> InboxSkeleton()
                     state.error -> ErrorState(
                         title = stringResource(R.string.inbox_error_title),
                         body = stringResource(R.string.inbox_error_body),
@@ -198,28 +226,15 @@ fun InboxRoute(
                         onCompose = onCompose,
                         onClearFilter = { viewModel.setFilter(InboxFilter.ALL) },
                     )
-                    else -> LazyColumn(Modifier.fillMaxSize()) {
-                        items(
-                            items = state.conversations,
-                            key = { conversation -> conversation.threadId },
-                            contentType = { "conversation" },
-                        ) { conversation ->
-                            ConversationRow(
-                                conversation = conversation,
-                                isSelected = conversation.threadId in state.selection,
-                                selectionMode = state.isSelecting,
-                                onClick = {
-                                    if (state.isSelecting) {
-                                        viewModel.toggleSelection(conversation.threadId)
-                                    } else {
-                                        onOpenConversation(conversation.threadId, conversation.address)
-                                    }
-                                },
-                                onLongClick = { viewModel.toggleSelection(conversation.threadId) },
-                            )
-                        }
-                        item { Spacer(Modifier.height(96.dp)) }
-                    }
+                    else -> ConversationList(
+                        conversations = state.conversations,
+                        selection = state.selection,
+                        selectionMode = state.isSelecting,
+                        onOpenConversation = onOpenConversation,
+                        onToggleSelection = viewModel::toggleSelection,
+                        onToggleRead = viewModel::toggleRead,
+                        onArchive = { viewModel.setArchived(it, true) },
+                    )
                 }
             }
         }
@@ -239,10 +254,132 @@ fun InboxRoute(
 }
 
 @Composable
-private fun InboxTopBar(
-    unread: Int,
+private fun ConversationList(
+    conversations: List<Conversation>,
+    selection: Set<Long>,
+    selectionMode: Boolean,
+    onOpenConversation: (threadId: Long, address: String) -> Unit,
+    onToggleSelection: (Long) -> Unit,
+    onToggleRead: (Conversation) -> Unit,
+    onArchive: (Conversation) -> Unit,
+) {
+    val pinned = conversations.filter { it.isPinned }
+    val regular = conversations.filterNot { it.isPinned }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(top = 4.dp, bottom = 96.dp),
+    ) {
+        if (pinned.isNotEmpty()) {
+            item(key = "header-pinned", contentType = "header") {
+                SectionHeader(text = stringResource(R.string.inbox_section_pinned))
+            }
+            items(pinned, key = { "pinned-${it.threadId}" }, contentType = { "conversation" }) { conversation ->
+                SwipeableConversation(
+                    conversation = conversation,
+                    selection = selection,
+                    selectionMode = selectionMode,
+                    onOpenConversation = onOpenConversation,
+                    onToggleSelection = onToggleSelection,
+                    onToggleRead = onToggleRead,
+                    onArchive = onArchive,
+                )
+            }
+        }
+        if (pinned.isNotEmpty() && regular.isNotEmpty()) {
+            item(key = "header-all", contentType = "header") {
+                SectionHeader(text = stringResource(R.string.inbox_section_all))
+            }
+        }
+        items(regular, key = { it.threadId }, contentType = { "conversation" }) { conversation ->
+            SwipeableConversation(
+                conversation = conversation,
+                selection = selection,
+                selectionMode = selectionMode,
+                onOpenConversation = onOpenConversation,
+                onToggleSelection = onToggleSelection,
+                onToggleRead = onToggleRead,
+                onArchive = onArchive,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SwipeableConversation(
+    conversation: Conversation,
+    selection: Set<Long>,
+    selectionMode: Boolean,
+    onOpenConversation: (threadId: Long, address: String) -> Unit,
+    onToggleSelection: (Long) -> Unit,
+    onToggleRead: (Conversation) -> Unit,
+    onArchive: (Conversation) -> Unit,
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            when (value) {
+                SwipeToDismissBoxValue.StartToEnd -> onToggleRead(conversation)
+                SwipeToDismissBoxValue.EndToStart -> onArchive(conversation)
+                SwipeToDismissBoxValue.Settled -> Unit
+            }
+            // Snap back: the list itself updates from the database, so keeping the row in a
+            // dismissed state would leave a hole if the action was a no-op.
+            false
+        }
+    )
+    SwipeToDismissBox(
+        state = dismissState,
+        enableDismissFromStartToEnd = !selectionMode,
+        enableDismissFromEndToStart = !selectionMode,
+        backgroundContent = {
+            val toEnd = dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd
+            val container = if (toEnd) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.primaryContainer
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 10.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(container)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = if (toEnd) Alignment.CenterStart else Alignment.CenterEnd,
+            ) {
+                Icon(
+                    imageVector = if (toEnd) Icons.Rounded.Check else Icons.Rounded.Archive,
+                    contentDescription = null,
+                    tint = if (toEnd) {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    },
+                )
+            }
+        },
+    ) {
+        ConversationRow(
+            conversation = conversation,
+            isSelected = conversation.threadId in selection,
+            selectionMode = selectionMode,
+            onClick = {
+                if (selectionMode) {
+                    onToggleSelection(conversation.threadId)
+                } else {
+                    onOpenConversation(conversation.threadId, conversation.address)
+                }
+            },
+            onLongClick = { onToggleSelection(conversation.threadId) },
+        )
+    }
+}
+
+@Composable
+private fun InboxHeader(
     filter: InboxFilter,
+    unread: Int,
     onSearch: () -> Unit,
+    archivedEnabled: Boolean,
     onSortUnreadFirst: () -> Unit,
     onOpenArchived: () -> Unit,
     onSettings: () -> Unit,
@@ -251,7 +388,7 @@ private fun InboxTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 8.dp, top = 18.dp, bottom = 4.dp),
+            .padding(start = 22.dp, end = 10.dp, top = 14.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -262,14 +399,22 @@ private fun InboxTopBar(
                     else -> stringResource(R.string.inbox_title)
                 },
                 style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
             )
-            if (unread > 0) {
-                Text(
-                    text = stringResource(R.string.inbox_unread_count, unread),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = if (unread > 0) {
+                    stringResource(R.string.inbox_unread_count, unread)
+                } else {
+                    stringResource(R.string.inbox_all_caught_up)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (unread > 0) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
         }
         IconButton(onClick = onSearch) {
             Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search))
@@ -278,15 +423,21 @@ private fun InboxTopBar(
             IconButton(onClick = { menuOpen = true }) {
                 Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more))
             }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+            DropdownMenu(
+                expanded = menuOpen,
+                onDismissRequest = { menuOpen = false },
+                shape = RoundedCornerShape(18.dp),
+            ) {
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.inbox_menu_sort)) },
                     onClick = { menuOpen = false; onSortUnreadFirst() },
                 )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.inbox_filter_archived)) },
-                    onClick = { menuOpen = false; onOpenArchived() },
-                )
+                if (archivedEnabled) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.inbox_filter_archived)) },
+                        onClick = { menuOpen = false; onOpenArchived() },
+                    )
+                }
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.nav_settings)) },
                     onClick = { menuOpen = false; onSettings() },
@@ -305,11 +456,11 @@ private fun SelectionTopBar(
     onMute: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .padding(horizontal = 6.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onClose) {
@@ -344,24 +495,23 @@ private fun SelectionTopBar(
 private fun RoleBanner(onRequestRole: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.tertiaryContainer,
-        shape = MaterialTheme.shapes.medium,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            modifier = Modifier.padding(start = 14.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 Icons.Rounded.Lock,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.onboarding_not_default),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
                 modifier = Modifier.weight(1f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -374,34 +524,44 @@ private fun RoleBanner(onRequestRole: () -> Unit) {
 }
 
 @Composable
-private fun FilterRow(selected: InboxFilter, onSelect: (InboxFilter) -> Unit) {
+private fun FilterChips(selected: InboxFilter, onSelect: (InboxFilter) -> Unit) {
     val filters = listOf(
         InboxFilter.ALL to R.string.inbox_filter_all,
         InboxFilter.UNREAD to R.string.inbox_filter_unread,
         InboxFilter.STARRED to R.string.inbox_filter_starred,
         InboxFilter.UNKNOWN to R.string.inbox_filter_unknown,
-        InboxFilter.ARCHIVED to R.string.inbox_filter_archived,
     )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        filters.forEach { (filter, labelRes) ->
+        items(filters, key = { it.first.name }) { (filter, labelRes) ->
             FilterChip(
                 selected = selected == filter,
                 onClick = { onSelect(filter) },
                 label = { Text(stringResource(labelRes), maxLines = 1) },
+                shape = RoundedCornerShape(999.dp),
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = true,
+                    selected = selected == filter,
+                    borderColor = Color.Transparent,
+                ),
             )
         }
     }
 }
 
 @Composable
-private fun LoadingState() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+private fun InboxSkeleton() {
+    Column(Modifier.fillMaxSize()) {
+        repeat(8) { index ->
+            SkeletonRow(showAvatar = true)
+            if (index == 3) Spacer(Modifier.height(4.dp))
+        }
     }
 }
 

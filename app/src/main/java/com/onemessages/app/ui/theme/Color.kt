@@ -12,11 +12,19 @@ object Brand {
     val ElectricVioletLight = Color(0xFFB9A6FF)
     val SkyBlue = Color(0xFF2E9BFF)
     val SkyBlueLight = Color(0xFF9BD1FF)
-    val Midnight = Color(0xFF0B0B12)
-    val DeepCharcoal = Color(0xFF12121B)
-    val CharcoalLayer = Color(0xFF1B1B26)
-    val OffWhite = Color(0xFFF8F7FC)
+    val Midnight = Color(0xFF0A0A10)
+    val DeepCharcoal = Color(0xFF111119)
+    val CharcoalLayer = Color(0xFF1D1D27)
+    val OffWhite = Color(0xFFF7F5FC)
     val SurfaceLight = Color(0xFFFFFFFF)
+
+    /** Aurora gradient used for hero surfaces, the empty-state medallion and the app icon. */
+    val AuroraStart = Color(0xFF8B5CFF)
+    val AuroraMid = Color(0xFF5F6BFF)
+    val AuroraEnd = Color(0xFF2E9BFF)
+
+    /** Warm highlight for "transaction"/priority accents that must stand apart from brand violet. */
+    val Honey = Color(0xFFF5A524)
     val Mint = Color(0xFF2ED3A3)
     val Coral = Color(0xFFFF6B6B)
     val Amber = Color(0xFFF2A93B)
@@ -197,18 +205,18 @@ fun appColorScheme(accent: AccentChoice, dark: Boolean): ColorScheme {
             tertiary = Color(0xFF9FD8B9),
             onTertiary = Color(0xFF06301D),
             background = Brand.Midnight,
-            onBackground = Color(0xFFEDEBF5),
+            onBackground = Color(0xFFF0EEF8),
             surface = Brand.DeepCharcoal,
-            onSurface = Color(0xFFEDEBF5),
-            surfaceVariant = Color(0xFF232230),
-            onSurfaceVariant = Color(0xFFC9C5D6),
-            surfaceContainer = Color(0xFF16161F),
+            onSurface = Color(0xFFF0EEF8),
+            surfaceVariant = Color(0xFF262534),
+            onSurfaceVariant = Color(0xFFC9C5DB),
+            surfaceContainer = Color(0xFF17171F),
             surfaceContainerHigh = Brand.CharcoalLayer,
-            surfaceContainerHighest = Color(0xFF242433),
-            surfaceContainerLow = Color(0xFF131320),
-            surfaceContainerLowest = Color(0xFF08080E),
-            outline = Color(0xFF8B879B),
-            outlineVariant = Color(0xFF3A3848),
+            surfaceContainerHighest = Color(0xFF2A2A38),
+            surfaceContainerLow = Color(0xFF0D0D14),
+            surfaceContainerLowest = Color(0xFF07070B),
+            outline = Color(0xFF8F8AA3),
+            outlineVariant = Color(0xFF3B3949),
             error = Color(0xFFFFB4AB),
             onError = Color(0xFF690005),
             errorContainer = Color(0xFF93000A),
@@ -231,18 +239,18 @@ fun appColorScheme(accent: AccentChoice, dark: Boolean): ColorScheme {
             tertiary = Color(0xFF0E7A5F),
             onTertiary = Color.White,
             background = Brand.OffWhite,
-            onBackground = Color(0xFF15131C),
+            onBackground = Color(0xFF141220),
             surface = Brand.SurfaceLight,
-            onSurface = Color(0xFF15131C),
-            surfaceVariant = Color(0xFFECE9F3),
-            onSurfaceVariant = Color(0xFF4B4757),
-            surfaceContainer = Color(0xFFF2F0F8),
-            surfaceContainerHigh = Color(0xFFECE9F4),
-            surfaceContainerHighest = Color(0xFFE6E2EF),
-            surfaceContainerLow = Color(0xFFF7F5FC),
+            onSurface = Color(0xFF141220),
+            surfaceVariant = Color(0xFFEDE9F7),
+            onSurfaceVariant = Color(0xFF565167),
+            surfaceContainer = Color(0xFFF3F0FB),
+            surfaceContainerHigh = Color(0xFFEDE9F7),
+            surfaceContainerHighest = Color(0xFFE5E0F2),
+            surfaceContainerLow = Color(0xFFFBF9FE),
             surfaceContainerLowest = Color.White,
-            outline = Color(0xFF77727F),
-            outlineVariant = Color(0xFFD8D4E0),
+            outline = Color(0xFF7B7590),
+            outlineVariant = Color(0xFFDCD6EA),
             error = Brand.ErrorRed,
             onError = Color.White,
             errorContainer = Color(0xFFFFDAD6),
@@ -287,10 +295,11 @@ fun conversationColors(
         highContrast -> scheme.onPrimary
         else -> scheme.onPrimary
     }
-    val incomingBubble = if (highContrast) {
-        if (dark) Color(0xFF2A2836) else Color(0xFFEDEAF5)
-    } else {
-        scheme.surfaceContainerHigh
+    val incomingBubble = when {
+        highContrast && dark -> Color(0xFF2A2836)
+        highContrast -> Color(0xFFEDEAF5)
+        dark -> scheme.surfaceContainerHigh
+        else -> scheme.surfaceContainerLowest
     }
     val incomingText = if (highContrast) scheme.onSurface else scheme.onSurface
     val background = scheme.background
@@ -300,10 +309,14 @@ fun conversationColors(
         outgoingText = outgoingText,
         incomingBubble = incomingBubble,
         incomingText = incomingText,
-        outgoingTimestamp = outgoingText.copy(alpha = 0.72f),
+        outgoingTimestamp = outgoingText.copy(alpha = 0.78f),
         incomingTimestamp = scheme.onSurfaceVariant,
         background = background,
-        gradientTop = if (gradient) scheme.primary.copy(alpha = if (dark) 0.16f else 0.08f) else null,
+        gradientTop = if (gradient) {
+            scheme.primary.copy(alpha = if (dark) 0.20f else 0.10f)
+        } else {
+            null
+        },
         gradientBottom = if (gradient) scheme.background else null,
         otpChip = scheme.secondaryContainer,
         otpChipText = scheme.onSecondaryContainer,

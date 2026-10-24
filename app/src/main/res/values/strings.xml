@@ -567,4 +567,36 @@
     </plurals>
     <string name="privacy_lock_continue">Open without the app lock</string>
     <string name="blocked_sender_unblocked">Sender unblocked</string>
+    <string name="inbox_search_placeholder">Search messages</string>
+    <string name="inbox_all_caught_up">You are all caught up</string>
+    <string name="inbox_section_pinned">Pinned</string>
+    <string name="inbox_section_all">All messages</string>
+    <string name="schedule_send_title">Send later</string>
+    <string name="schedule_send_body">Choose when this message should leave your phone. The system scheduler sends it, so it may arrive a few minutes late while the phone is asleep.</string>
+    <string name="schedule_in_one_hour">In 1 hour</string>
+    <string name="schedule_in_three_hours">In 3 hours</string>
+    <string name="schedule_tonight">Tonight, 7:00 PM</string>
+    <string name="schedule_tomorrow_morning">Tomorrow, 8:00 AM</string>
+    <string name="schedule_custom">Pick date and time</string>
+    <string name="schedule_confirm">Schedule</string>
+    <string name="scheduled_send_confirmed">Message scheduled</string>
+    <string name="scheduled_send_failed">Could not schedule that message</string>
+    <string name="scheduled_send_cancelled">Scheduled message cancelled</string>
+    <string name="scheduled_banner">Scheduled · %1$d</string>
+    <string name="scheduled_send_now">Send now</string>
+    <string name="scheduled_cancel">Cancel</string>
+    <string name="scheduled_sheet_title">Waiting to send</string>
+    <string name="scheduled_sheet_body">These messages will be sent automatically at the times shown. You can cancel any of them before then.</string>
+    <string name="scheduled_past_time">That time has already passed</string>
+    <string name="smart_replies_label">Suggested replies</string>
+    <string name="smart_reply_yes">Yes</string>
+    <string name="smart_reply_no">No</string>
+    <string name="smart_reply_thanks">Thanks!</string>
+    <string name="smart_reply_ok">OK</string>
+    <string name="smart_reply_on_my_way">On my way</string>
+    <string name="smart_reply_call_me">I will call you</string>
+    <string name="smart_reply_greeting">Hello!</string>
+    <string name="smart_reply_see_you_soon">See you soon</string>
+    <string name="smart_replies_settings_title">Suggested replies</string>
+    <string name="smart_replies_settings_body">Offer three short reply chips when a message arrives. Suggestions are computed on this device from simple word cues and are never uploaded.</string>
 </resources>

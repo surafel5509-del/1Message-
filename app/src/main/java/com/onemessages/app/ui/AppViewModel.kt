@@ -8,6 +8,7 @@ import com.onemessages.app.core.AppLocale
 import com.onemessages.app.core.Logx
 import com.onemessages.app.data.preferences.AppSettings
 import com.onemessages.app.data.preferences.SettingsRepository
+import com.onemessages.app.data.repository.ScheduledMessageRepository
 import com.onemessages.app.data.repository.ProviderChangeNotifier
 import com.onemessages.app.model.DeviceTelephonyState
 import com.onemessages.app.model.SmsRoleState
@@ -44,6 +45,7 @@ class AppViewModel @Inject constructor(
     private val subscriptions: SubscriptionRepository,
     private val contactsRepository: ContactsRepository,
     private val providerNotifier: ProviderChangeNotifier,
+    private val scheduledMessages: ScheduledMessageRepository,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> = settingsRepository.settings
@@ -94,6 +96,11 @@ class AppViewModel @Inject constructor(
             _initialising.value = false
         }
         refreshTelephony()
+        viewModelScope.launch {
+            // A previous process may have died between enqueueing a scheduled send and the
+            // scheduler persisting it; re-arming is idempotent (REPLACE) and cheap.
+            runCatching { scheduledMessages.rearmPending() }
+        }
     }
 
     fun refreshPermissions() {

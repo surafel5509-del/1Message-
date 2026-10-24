@@ -102,6 +102,8 @@ for dirpath, _, names in os.walk(SRC):
                 continue
             if re.search(r"androidx\.[\w.]*\b" + symbol + r"\b", body):
                 continue  # used fully qualified
+            if re.search(r"LineHeightStyle\." + symbol + r"\b", body):
+                continue  # nested enum of an imported class
             problems.append(f"{os.path.relpath(path, ROOT)}: {symbol} used without an import")
 
 for p in sorted(set(problems)):

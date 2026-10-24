@@ -10,12 +10,16 @@ import com.onemessages.app.data.preferences.SettingsRepository
 import com.onemessages.app.data.repository.AttachmentRepository
 import com.onemessages.app.data.repository.ConversationRepository
 import com.onemessages.app.data.repository.MessagePage
+import com.onemessages.app.data.repository.ScheduledMessageRepository
 import com.onemessages.app.domain.SmartOrganizer
+import com.onemessages.app.domain.SmartReplyKind
+import com.onemessages.app.domain.SmartReplies
 import com.onemessages.app.model.Attachment
 import com.onemessages.app.model.ContactIdentity
 import com.onemessages.app.model.Conversation
 import com.onemessages.app.model.Message
 import com.onemessages.app.model.OtpMatch
+import com.onemessages.app.model.ScheduledMessage
 import com.onemessages.app.model.SendFailureReason
 import com.onemessages.app.model.SendOutcome
 import com.onemessages.app.model.SimInfo
@@ -58,7 +62,15 @@ data class ConversationUiState(
     val blocked: Boolean = false,
     val otpVisible: Boolean = false,
     val canSendMms: Boolean = false,
+    val smartReplies: List<SmartReplyKind> = emptyList(),
+    val scheduled: List<ScheduledMessage> = emptyList(),
 ) {
+    /** The most recent received message, if it is still the newest one in the thread. */
+    val lastIncoming: Message?
+        get() = messages.lastOrNull()?.takeIf { it.direction == com.onemessages.app.model.Direction.INCOMING }
+
+    val hasScheduled: Boolean get() = scheduled.isNotEmpty()
+
     val isNewConversation: Boolean get() = threadId <= 0
     val displayTitle: String
         get() = conversation?.displayName?.takeIf { it.isNotBlank() }
@@ -85,6 +97,7 @@ class ConversationViewModel @Inject constructor(
     private val contactsRepository: ContactsRepository,
     private val attachments: AttachmentRepository,
     private val notifier: MessageNotifier,
+    private val scheduledRepository: ScheduledMessageRepository,
 ) : ViewModel() {
 
     // Navigation passes threadId as a Long; older links may still hand over a string, so both
@@ -127,10 +140,16 @@ class ConversationViewModel @Inject constructor(
                         canSendMms = subscriptions.isMobileDataEnabled() && sims.isNotEmpty(),
                     )
                 }
+                if (!current.smartRepliesEnabled) {
+                    _state.update { it.copy(smartReplies = emptyList()) }
+                } else {
+                    recomputeSmartReplies()
+                }
             }
         }
         viewModelScope.launch { observeConversation() }
         viewModelScope.launch { observeMessages() }
+        viewModelScope.launch { observeScheduled() }
         viewModelScope.launch { persistDraft() }
         if (initialThreadId > 0) {
             viewModelScope.launch {
@@ -162,6 +181,20 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    private suspend fun observeScheduled() {
+        if (initialThreadId <= 0) return
+        scheduledRepository.observeForThread(initialThreadId).collect { rows ->
+            _state.update { it.copy(scheduled = rows) }
+        }
+    }
+
+    private fun recomputeSmartReplies() {
+        val suggestion = SmartReplies.suggest(_state.value.lastIncoming?.body)
+        if (suggestion != _state.value.smartReplies) {
+            _state.update { it.copy(smartReplies = suggestion) }
+        }
+    }
+
     private suspend fun observeMessages() {
         if (initialThreadId <= 0) return
         conversationRepository.observeMessages(initialThreadId).collect { page ->
@@ -188,6 +221,7 @@ class ConversationViewModel @Inject constructor(
                 loadingMore = false,
             )
         }
+        recomputeSmartReplies()
         // A draft may have been written for this thread earlier in the session.
         if (!draftInitialised) viewModelScope.launch { loadDraft() }
     }
@@ -296,6 +330,67 @@ class ConversationViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Queues [body] for [sendAt] instead of sending now. The text moves out of the composer only
+     * once Room has accepted the row, so a failed write can never eat a message.
+     */
+    fun scheduleSend(sendAt: Long) {
+        val current = _state.value
+        val body = current.draft
+        if (body.isBlank()) return
+        if (sendAt <= System.currentTimeMillis()) {
+            send()
+            return
+        }
+        viewModelScope.launch {
+            val address = current.address.ifBlank { current.conversation?.address.orEmpty() }
+            runCatching {
+                scheduledRepository.schedule(
+                    address = address,
+                    body = body,
+                    threadId = current.threadId.coerceAtLeast(0L),
+                    subscriptionId = current.selectedSimId,
+                    sendAt = sendAt,
+                )
+            }.onSuccess {
+                _state.update { it.copy(draft = "") }
+                draftInput.value = ""
+                if (current.threadId > 0) conversationRepository.clearDraft(current.threadId)
+                _events.value = ConversationEvent.ShowSnackbar(
+                    com.onemessages.app.R.string.scheduled_send_confirmed
+                )
+            }.onFailure { error ->
+                Logx.w("Schedule", "could not schedule", error)
+                _events.value = ConversationEvent.ShowSnackbar(
+                    com.onemessages.app.R.string.scheduled_send_failed
+                )
+            }
+        }
+    }
+
+    fun cancelScheduled(id: Long) {
+        viewModelScope.launch {
+            scheduledRepository.cancel(id)
+            _events.value = ConversationEvent.ShowSnackbar(
+                com.onemessages.app.R.string.scheduled_send_cancelled
+            )
+        }
+    }
+
+    fun sendScheduledNow(message: ScheduledMessage) {
+        viewModelScope.launch {
+            scheduledRepository.reschedule(message.id, System.currentTimeMillis())
+            scheduledRepository.armWorker(message.id, System.currentTimeMillis())
+            _events.value = ConversationEvent.ShowSnackbar(
+                com.onemessages.app.R.string.scheduled_send_confirmed
+            )
+        }
+    }
+
+    fun applySmartReply(label: String) {
+        onDraftChanged(label)
     }
 
     fun retryMessage(message: Message) {
