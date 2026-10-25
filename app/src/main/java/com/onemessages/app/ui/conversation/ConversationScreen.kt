@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.AttachFile
 import androidx.compose.material.icons.rounded.Call
+import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Description
@@ -76,11 +78,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,8 +99,10 @@ import com.onemessages.app.ui.components.Avatar
 import com.onemessages.app.ui.components.ConfirmDialog
 import com.onemessages.app.ui.components.ConversationBackground
 import com.onemessages.app.ui.components.DateSeparator
+import com.onemessages.app.ui.components.IconMedallion
 import com.onemessages.app.ui.components.MessageBubble
 import com.onemessages.app.ui.components.Pill
+import com.onemessages.app.ui.theme.LocalMotion
 import com.onemessages.app.util.TimeFormatters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -302,10 +308,7 @@ fun ConversationRoute(
     ) { padding ->
         ConversationBackground(Modifier.fillMaxSize().padding(padding)) {
             when {
-                state.loading && state.messages.isEmpty() -> Box(
-                    Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) { CircularProgressIndicator() }
+                state.loading && state.messages.isEmpty() -> ChatSkeleton()
 
                 !hasSmsPermission -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
@@ -366,6 +369,11 @@ fun ConversationRoute(
                                     Modifier.fillMaxWidth().padding(32.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
+                                    IconMedallion(
+                                        icon = Icons.Rounded.ChatBubbleOutline,
+                                        size = 52.dp,
+                                    )
+                                    Spacer(Modifier.height(12.dp))
                                     Text(
                                         stringResource(R.string.conversation_empty_title),
                                         style = MaterialTheme.typography.titleMedium,
@@ -375,6 +383,7 @@ fun ConversationRoute(
                                         stringResource(R.string.conversation_empty_body),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
                                     )
                                 }
                             }
@@ -560,8 +569,21 @@ private fun ConversationTopBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.back))
+                    Surface(
+                        shape = androidx.compose.foundation.shape.CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                Icons.Rounded.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    }
                 }
+                Spacer(Modifier.width(4.dp))
                 Avatar(name = title, photoUri = photoUri, size = 38.dp, showPhoto = showPhoto)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -904,4 +926,46 @@ private fun buildTranscript(
         builder.append("\n\n")
     }
     return builder.toString()
+}
+
+/**
+ * Placeholder bubbles while the first page loads.
+ *
+ * A centred spinner on a chat screen reads as "nothing here"; staggered bubbles read as "your
+ * messages are coming", which is what is actually happening.
+ */
+@Composable
+private fun ChatSkeleton() {
+    val motion = LocalMotion.current
+    val alpha by androidx.compose.animation.core.rememberInfiniteTransition(label = "chatSkeleton")
+        .animateFloat(
+            initialValue = 0.30f,
+            targetValue = 0.70f,
+            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                animation = androidx.compose.animation.core.tween(900),
+                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+            ),
+            label = "chatSkeletonAlpha",
+        )
+    val bubbleColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 18.dp)) {
+        listOf(0.62f to false, 0.48f to true, 0.72f to false, 0.40f to true, 0.55f to true)
+            .forEachIndexed { index, (width, outgoing) ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    horizontalArrangement = if (outgoing) Arrangement.End else Arrangement.Start,
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth(width)
+                            .height(if (index % 2 == 0) 54.dp else 42.dp)
+                            .clip(MaterialTheme.shapes.large)
+                            .alpha(if (motion.enabled) alpha else 0.5f)
+                            .background(bubbleColor)
+                    )
+                }
+            }
+    }
 }

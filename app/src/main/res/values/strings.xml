@@ -602,4 +602,5 @@
     <string name="export_conversation_done">Conversation saved</string>
     <string name="export_conversation_failed">Could not save the conversation</string>
     <string name="export_speaker_me">Me</string>
+    <string name="role_banner_body">Not the default SMS app. New messages cannot be received and notifications will not appear until you set 1 MESSAGES as default.</string>
 </resources>

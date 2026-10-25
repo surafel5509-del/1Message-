@@ -599,4 +599,5 @@
     <string name="export_conversation_done">ውይይቱ ተቀምጧል</string>
     <string name="export_conversation_failed">ውይይቱን ማስቀመጥ አልተቻለም</string>
     <string name="export_speaker_me">እኔ</string>
+    <string name="role_banner_body">ነባሪ የመልዕክት መተግበሪያ አይደለም። 1 MESSAGES ነባሪ እስኪሆን ድረስ አዲስ መልዕክቶች መቀበል አይቻልም፤ ማሳወቂያም አይታይም።</string>
 </resources>

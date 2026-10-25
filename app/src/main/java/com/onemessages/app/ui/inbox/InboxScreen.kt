@@ -520,10 +520,10 @@ private fun RoleBanner(onRequestRole: () -> Unit) {
             )
             Spacer(Modifier.width(10.dp))
             Text(
-                text = stringResource(R.string.onboarding_not_default),
+                text = stringResource(R.string.role_banner_body),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.weight(1f),
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             TextButton(onClick = onRequestRole) {
