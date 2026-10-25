@@ -285,15 +285,18 @@ fun conversationColors(
 ): ConversationColors {
     val highContrast = settings.bubbleStyle == com.onemessages.app.data.preferences.BubbleStyle.HIGH_CONTRAST
     val neutral = settings.bubbleStyle == com.onemessages.app.data.preferences.BubbleStyle.SURFACE
+    // Outgoing bubbles use the *container* tone of the accent rather than the accent itself:
+    // a full-saturation violet behind every sent message made long conversations loud and
+    // tiring. Container tones keep the accent recognisable while staying comfortable to read.
     val outgoingBubble = when {
         neutral -> scheme.surfaceContainerHighest
         highContrast -> scheme.primary
-        else -> scheme.primary
+        else -> scheme.primaryContainer
     }
     val outgoingText = when {
         neutral -> scheme.onSurface
         highContrast -> scheme.onPrimary
-        else -> scheme.onPrimary
+        else -> scheme.onPrimaryContainer
     }
     val incomingBubble = when {
         highContrast && dark -> Color(0xFF2A2836)

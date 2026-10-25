@@ -177,6 +177,21 @@ class SystemSmsDataSource @Inject constructor(
     }
 
     /**
+     * Total unread inbound messages. Uses a projection of one column so it stays cheap enough
+     * to drive the navigation badge on every provider change.
+     */
+    suspend fun unreadTotal(): Int = withContext(Dispatchers.IO) {
+        var total = 0
+        listOf(Telephony.Sms.Inbox.CONTENT_URI, Telephony.Mms.Inbox.CONTENT_URI).forEach { uri ->
+            runCatching {
+                resolver.query(uri, arrayOf("_id"), "${Telephony.Sms.READ} = 0", null, null)
+                    ?.use { cursor -> total += cursor.count }
+            }.onFailure { Logx.w("Provider", "unread total query failed", it) }
+        }
+        total
+    }
+
+    /**
      * Last-message facts for the visible threads. Sorted newest-first so we can stop as soon
      * as each thread has been seen, keeping this constant-ish even on large inboxes.
      */

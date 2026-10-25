@@ -22,7 +22,8 @@ object Routes {
     const val SETTINGS_STORAGE = "settings/storage"
     const val SETTINGS_ABOUT = "settings/about"
 
-    val topLevel = setOf(CHATS, CONTACTS, STARRED, SETTINGS)
+    /** The three tabs of the navigation bar. Contacts is a normal screen reached from Chats. */
+    val topLevel = setOf(CHATS, STARRED, SETTINGS)
 
     fun conversation(threadId: Long, address: String): String =
         "conversation/$threadId?address=${Uri.encode(address)}"

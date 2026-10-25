@@ -34,6 +34,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
@@ -94,6 +95,7 @@ fun InboxRoute(
     onCompose: () -> Unit,
     onSearch: () -> Unit,
     onOpenArchived: () -> Unit,
+    onOpenContacts: () -> Unit,
     onOpenSettings: () -> Unit,
     hasSmsPermission: Boolean,
     roleState: SmsRoleState,
@@ -187,6 +189,7 @@ fun InboxRoute(
                         )
                     },
                     onOpenArchived = onOpenArchived,
+                    onOpenContacts = onOpenContacts,
                     onSettings = onOpenSettings,
                 )
                 SearchPill(
@@ -382,6 +385,7 @@ private fun InboxHeader(
     archivedEnabled: Boolean,
     onSortUnreadFirst: () -> Unit,
     onOpenArchived: () -> Unit,
+    onOpenContacts: () -> Unit,
     onSettings: () -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -418,6 +422,12 @@ private fun InboxHeader(
         }
         IconButton(onClick = onSearch) {
             Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search))
+        }
+        IconButton(onClick = onOpenContacts) {
+            Icon(
+                Icons.Rounded.People,
+                contentDescription = stringResource(R.string.nav_contacts),
+            )
         }
         Box {
             IconButton(onClick = { menuOpen = true }) {

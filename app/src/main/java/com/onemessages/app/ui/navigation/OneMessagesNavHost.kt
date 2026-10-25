@@ -4,24 +4,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChatBubbleOutline
-import androidx.compose.material.icons.rounded.Contacts
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,6 +54,8 @@ fun OneMessagesNavHost(
 ) {
     val context = LocalContext.current
     val backStackEntry by navController.currentBackStackEntryAsState()
+    val badgeViewModel: NavBadgeViewModel = hiltViewModel()
+    val unreadTotal by badgeViewModel.unread.collectAsStateWithLifecycle()
 
     LaunchedEffect(deepLink) {
         val target = deepLink ?: return@LaunchedEffect
@@ -101,15 +93,24 @@ fun OneMessagesNavHost(
     }
 
     Scaffold(
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         bottomBar = {
             if (showBars && !isExpandedLayout) {
-                AppBottomBar(currentRoute = currentRoute, onNavigate = ::navigateTopLevel)
+                AppNavBar(
+                    currentRoute = currentRoute,
+                    unreadCount = unreadTotal,
+                    onNavigate = ::navigateTopLevel,
+                )
             }
         },
     ) { padding ->
         Row(Modifier.fillMaxSize().padding(padding)) {
             if (showBars && isExpandedLayout) {
-                AppNavigationRail(currentRoute = currentRoute, onNavigate = ::navigateTopLevel)
+                AppNavRail(
+                    currentRoute = currentRoute,
+                    unreadCount = unreadTotal,
+                    onNavigate = ::navigateTopLevel,
+                )
             }
             Box(Modifier.weight(1f)) {
                 NavHost(navController = navController, startDestination = Routes.CHATS) {
@@ -122,6 +123,7 @@ fun OneMessagesNavHost(
                             onCompose = { navController.navigate(Routes.newMessage()) },
                             onSearch = { navController.navigate(Routes.SEARCH) },
                             onOpenArchived = { navController.navigate(Routes.ARCHIVED) },
+                            onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
                             roleState = roleState,
@@ -138,6 +140,7 @@ fun OneMessagesNavHost(
                             onCompose = { navController.navigate(Routes.newMessage()) },
                             onSearch = { navController.navigate(Routes.SEARCH) },
                             onOpenArchived = { navController.navigate(Routes.ARCHIVED) },
+                            onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
                             roleState = roleState,
@@ -154,6 +157,7 @@ fun OneMessagesNavHost(
                             onCompose = { navController.navigate(Routes.newMessage()) },
                             onSearch = { navController.navigate(Routes.SEARCH) },
                             onOpenArchived = { },
+                            onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
                             roleState = roleState,
@@ -232,7 +236,7 @@ fun OneMessagesNavHost(
                     }
                     composable(Routes.SETTINGS) {
                         SettingsHomeRoute(
-                            onBack = { navController.popBackStack() },
+                            onBack = null,
                             onOpenAppearance = { navController.navigate(Routes.SETTINGS_APPEARANCE) },
                             onOpenNotifications = { navController.navigate(Routes.SETTINGS_NOTIFICATIONS) },
                             onOpenPrivacy = { navController.navigate(Routes.SETTINGS_PRIVACY) },
@@ -277,65 +281,5 @@ fun OneMessagesNavHost(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun AppBottomBar(currentRoute: String?, onNavigate: (String) -> Unit) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = currentRoute == Routes.CHATS,
-            onClick = { onNavigate(Routes.CHATS) },
-            icon = { Icon(Icons.Rounded.ChatBubbleOutline, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_chats)) },
-        )
-        NavigationBarItem(
-            selected = currentRoute == Routes.CONTACTS,
-            onClick = { onNavigate(Routes.CONTACTS) },
-            icon = { Icon(Icons.Rounded.Contacts, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_contacts)) },
-        )
-        NavigationBarItem(
-            selected = currentRoute == Routes.STARRED,
-            onClick = { onNavigate(Routes.STARRED) },
-            icon = { Icon(Icons.Rounded.Star, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_starred)) },
-        )
-        NavigationBarItem(
-            selected = currentRoute == Routes.SETTINGS,
-            onClick = { onNavigate(Routes.SETTINGS) },
-            icon = { Icon(Icons.Rounded.Settings, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_settings)) },
-        )
-    }
-}
-
-@Composable
-private fun AppNavigationRail(currentRoute: String?, onNavigate: (String) -> Unit) {
-    NavigationRail {
-        NavigationRailItem(
-            selected = currentRoute == Routes.CHATS,
-            onClick = { onNavigate(Routes.CHATS) },
-            icon = { Icon(Icons.Rounded.ChatBubbleOutline, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_chats)) },
-        )
-        NavigationRailItem(
-            selected = currentRoute == Routes.CONTACTS,
-            onClick = { onNavigate(Routes.CONTACTS) },
-            icon = { Icon(Icons.Rounded.Contacts, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_contacts)) },
-        )
-        NavigationRailItem(
-            selected = currentRoute == Routes.STARRED,
-            onClick = { onNavigate(Routes.STARRED) },
-            icon = { Icon(Icons.Rounded.Star, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_starred)) },
-        )
-        NavigationRailItem(
-            selected = currentRoute == Routes.SETTINGS,
-            onClick = { onNavigate(Routes.SETTINGS) },
-            icon = { Icon(Icons.Rounded.Settings, contentDescription = null) },
-            label = { Text(stringResource(R.string.nav_settings)) },
-        )
     }
 }

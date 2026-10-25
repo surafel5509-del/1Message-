@@ -101,6 +101,12 @@ class ConversationRepository @Inject constructor(
             .mapLatest { bundle -> withContext(Dispatchers.IO) { buildInbox(filter, sort, bundle) } }
             .flowOn(Dispatchers.IO)
 
+    /** Unread inbound count, for the navigation badge. */
+    fun observeUnreadTotal(): Flow<Int> =
+        changeStream
+            .mapLatest { withContext(Dispatchers.IO) { provider.unreadTotal() } }
+            .flowOn(Dispatchers.IO)
+
     /** Used by the starred tab: conversations with a starred flag or starred message. */
     fun observeStarred(): Flow<List<Conversation>> =
         combine(changeStream, metadataFlow) { _, bundle -> bundle }
@@ -285,7 +291,9 @@ class ConversationRepository @Inject constructor(
             val identity = contacts.lookup(latest.address)
             val meta = metaByThread[threadId] ?: metaByThread[syntheticId]
             val draft = draftsByThread[threadId]
-            val unread = list.count { it.direction == Direction.INCOMING.name && !it.read }
+            val unread = list.count { row ->
+                row.direction == Direction.INCOMING.name && !row.read
+            }
             Conversation(
                 threadId = threadId,
                 recipientIds = emptyList(),
@@ -434,7 +442,9 @@ class ConversationRepository @Inject constructor(
             address = latest.address,
             snippet = latest.body,
             lastTimestamp = latest.timestamp,
-            unreadCount = rows.count { it.direction == Direction.INCOMING.name && !it.read },
+            unreadCount = rows.count { row ->
+                row.direction == Direction.INCOMING.name && !row.read
+            },
             hasDraft = !draft?.text.isNullOrBlank(),
             draftText = draft?.text,
             isPinned = meta?.isPinned == true,
@@ -515,7 +525,7 @@ class ConversationRepository @Inject constructor(
                     trimmed.any { providerMessage -> providerMessage.id == systemId }
                 } == true
                 val sameContent = trimmed.any { providerMessage ->
-                    providerMessage.direction == local.direction &&
+                    providerMessage.direction.name == local.direction &&
                         providerMessage.body == local.body &&
                         kotlin.math.abs(providerMessage.timestamp - local.timestamp) <= DUPLICATE_WINDOW_MS
                 }

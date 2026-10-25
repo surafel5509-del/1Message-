@@ -87,13 +87,13 @@ class MessageArchiveRepository @Inject constructor(
             LocalMessageEntity(
                 id = rowId,
                 threadId = effectiveThread,
-                address = row.address,
+                address = address,
                 addressKey = key,
-                body = row.body,
+                body = body,
                 direction = Direction.OUTGOING.name,
                 status = MessageStatus.SENDING.name,
-                timestamp = row.timestamp,
-                subscriptionId = row.subscriptionId,
+                timestamp = timestamp,
+                subscriptionId = subscriptionId,
                 read = true,
                 createdAt = timestamp,
             )
@@ -118,23 +118,24 @@ class MessageArchiveRepository @Inject constructor(
     ): Long = withContext(Dispatchers.IO) {
         val key = addressKey(address)
         val effectiveThread = if (threadId > 0) threadId else syntheticThreadId(key)
-        dao.insert(
+        val id = dao.insert(
             LocalMessageEntity(
                 threadId = effectiveThread,
-                address = row.address,
+                address = address,
                 addressKey = key,
-                body = row.body,
+                body = body,
                 direction = Direction.INCOMING.name,
                 status = MessageStatus.RECEIVED.name,
-                timestamp = row.timestamp,
-                subscriptionId = row.subscriptionId,
+                timestamp = timestamp,
+                subscriptionId = subscriptionId,
                 systemMessageId = systemMessageId,
                 providerUri = providerUri,
-                read = row.read,
+                read = read,
                 createdAt = System.currentTimeMillis(),
             )
         )
         changed()
+        id
     }
 
     suspend fun markSent(id: Long, systemMessageId: Long?, providerUri: String?) =

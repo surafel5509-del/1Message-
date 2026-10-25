@@ -8,11 +8,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.onemessages.app.MainActivity
 import com.onemessages.app.R
@@ -26,6 +28,7 @@ import com.onemessages.app.util.PhoneNumbers
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import java.time.ZonedDateTime
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -114,8 +117,14 @@ class MessageNotifier @Inject constructor(
             NotificationChannels.channelForSound(context, conversation?.customSound ?: settings.notificationSound)
         }
 
+        val avatar = avatarFor(name, conversation?.photoUri)
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
+            .setLargeIcon(avatar)
+            .setColor(ContextCompat.getColor(context, R.color.launcher_background))
+            .setColorized(true)
+            .setSubText(context.getString(R.string.app_name_brand))
+            .setShortcutId("conversation-$threadId")
             .setStyle(style)
             .setContentTitle(name)
             .setContentText(
@@ -149,6 +158,7 @@ class MessageNotifier @Inject constructor(
             )
             .setOnlyAlertOnce(false)
             .setSilent(quiet)
+            .setDefaults(if (quiet) 0 else NotificationCompat.DEFAULT_LIGHTS)
             .addAction(replyAction(threadId, message.address, message.subscriptionId))
             .addAction(markReadAction(threadId))
 
@@ -183,6 +193,8 @@ class MessageNotifier @Inject constructor(
     private suspend fun postSummary(unread: Int, quiet: Boolean, preview: Boolean) {
         val summary = NotificationCompat.Builder(context, NotificationChannels.MESSAGES)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(ContextCompat.getColor(context, R.color.launcher_background))
+            .setColorized(true)
             .setContentTitle(context.getString(R.string.app_name_brand))
             .setContentText(
                 if (preview) {
@@ -200,6 +212,14 @@ class MessageNotifier @Inject constructor(
             .addAction(markAllReadAction())
         runCatching { manager.notify(SUMMARY_ID, summary.build()) }
     }
+
+    /** Decoding a contact photo on every notification would be wasteful; cache per URI. */
+    private val avatarCache = ConcurrentHashMap<String, Bitmap>()
+
+    private fun avatarFor(name: String, photoUri: String?): Bitmap =
+        avatarCache.getOrPut(photoUri ?: "monogram:$name") {
+            SenderAvatar.load(context, photoUri, name)
+        }
 
     private fun personFor(name: String, photoUri: String?): Person {
         val builder = Person.Builder().setName(name).setImportant(true)
@@ -331,6 +351,9 @@ class MessageNotifier @Inject constructor(
             NotificationChannels.channelForSound(context, settings.notificationSound),
         )
             .setSmallIcon(R.drawable.ic_notification)
+            .setLargeIcon(avatarFor(context.getString(R.string.notif_test_title), null))
+            .setColor(ContextCompat.getColor(context, R.color.launcher_background))
+            .setColorized(true)
             .setContentTitle(context.getString(R.string.notif_test_title))
             .setContentText(context.getString(R.string.notif_test_body))
             .setStyle(

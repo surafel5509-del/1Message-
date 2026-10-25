@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Backup
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
@@ -29,6 +31,7 @@ import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -49,12 +52,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.onemessages.app.BuildConfigCompat
 import com.onemessages.app.R
 import com.onemessages.app.model.SmsRoleState
+import com.onemessages.app.ui.components.AuroraButton
+import com.onemessages.app.ui.components.AuroraMedallion
+import com.onemessages.app.ui.components.Pill
 import com.onemessages.app.ui.components.SettingsRow
 import com.onemessages.app.ui.components.SettingsSection
+import com.onemessages.app.ui.theme.auroraBrush
 
 @Composable
 fun SettingsHomeRoute(
-    onBack: () -> Unit,
+    /** Null when Settings is shown as a navigation tab, where there is nothing to go back to. */
+    onBack: (() -> Unit)? = null,
     onOpenAppearance: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenPrivacy: () -> Unit,
@@ -70,11 +78,31 @@ fun SettingsHomeRoute(
     val role by viewModel.roleState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
+                title = {
+                    Column {
+                        Text(
+                            text = stringResource(R.string.settings_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                        Text(
+                            text = stringResource(R.string.app_tagline),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
                 navigationIcon = {
-                    TextButton(onClick = onBack) { Text(stringResource(R.string.back)) }
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.Rounded.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -178,75 +206,95 @@ fun SettingsHomeRoute(
 private fun RoleCard(role: SmsRoleState, onRequestRole: () -> Unit) {
     val context = LocalContext.current
     val isDefault = role == SmsRoleState.DEFAULT_SMS_APP
+    val dark = androidx.compose.foundation.isSystemInDarkTheme()
+    val shape = RoundedCornerShape(28.dp)
     Surface(
-        color = if (isDefault) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.tertiaryContainer
-        },
-        shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = 1.dp,
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+        ),
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        Column(Modifier.padding(18.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    if (isDefault) Icons.Rounded.Lock else Icons.Rounded.Info,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = if (isDefault) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onTertiaryContainer
-                    },
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = stringResource(R.string.settings_default_role),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isDefault) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onTertiaryContainer
-                    },
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = stringResource(
-                    if (isDefault) R.string.settings_default_role_active
-                    else R.string.settings_default_role_inactive
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isDefault) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onTertiaryContainer
-                },
-            )
-            Text(
-                text = stringResource(R.string.settings_default_role_body),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isDefault) {
-                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                } else {
-                    MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.85f)
-                },
-            )
-            if (!isDefault) {
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = onRequestRole) {
-                        Text(stringResource(R.string.settings_default_role_cta))
-                    }
-                    TextButton(onClick = {
-                        runCatching {
-                            context.startActivity(
-                                Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    if (isDefault) {
+                        auroraBrush(dark).let { brush ->
+                            androidx.compose.ui.graphics.Brush.linearGradient(
+                                listOf(
+                                    com.onemessages.app.ui.theme.Brand.AuroraStart.copy(alpha = 0.16f),
+                                    com.onemessages.app.ui.theme.Brand.AuroraMid.copy(alpha = 0.10f),
+                                    androidx.compose.ui.graphics.Color.Transparent,
+                                )
                             )
                         }
-                    }) {
-                        Text(stringResource(R.string.open_settings))
+                    } else {
+                        androidx.compose.ui.graphics.SolidColor(
+                            MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.45f)
+                        )
+                    }
+                )
+                .padding(18.dp),
+        ) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AuroraMedallion(icon = Icons.Rounded.Lock, size = 46.dp)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.app_name_brand),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_version, "1.0.0", 1),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Pill(
+                        text = if (isDefault) {
+                            stringResource(R.string.settings_default_role_active)
+                        } else {
+                            stringResource(R.string.settings_default_role_inactive)
+                        },
+                        containerColor = if (isDefault) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerHighest
+                        },
+                        contentColor = if (isDefault) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    text = stringResource(R.string.settings_default_role_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (!isDefault) {
+                    Spacer(Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AuroraButton(
+                            text = stringResource(R.string.settings_default_role_cta),
+                            onClick = onRequestRole,
+                            icon = Icons.Rounded.CheckCircle,
+                        )
+                        TextButton(onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(AndroidSettings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+                                )
+                            }
+                        }) {
+                            Text(stringResource(R.string.open_settings))
+                        }
                     }
                 }
             }
