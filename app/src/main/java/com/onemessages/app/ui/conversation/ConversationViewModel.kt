@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -122,6 +123,13 @@ class ConversationViewModel @Inject constructor(
     private val _events = MutableStateFlow<ConversationEvent?>(null)
     val events: StateFlow<ConversationEvent?> = _events.asStateFlow()
 
+    /**
+     * The thread currently being observed. It starts at the route's thread id and is replaced
+     * as soon as a brand-new conversation gets a real provider thread, so the message flow
+     * follows the conversation instead of staying stuck on the -1 placeholder.
+     */
+    private val observedThread = MutableStateFlow(initialThreadId)
+
     private var sendJob: Job? = null
     private var draftJob: Job? = null
     private var currentThreadId: Long = initialThreadId
@@ -154,8 +162,8 @@ class ConversationViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch { observeConversation() }
-        viewModelScope.launch { observeMessages() }
+        viewModelScope.launch { collectConversation() }
+        viewModelScope.launch { collectMessages() }
         viewModelScope.launch { observeScheduled() }
         viewModelScope.launch { persistDraft() }
         if (initialThreadId != 0L) {
@@ -166,46 +174,54 @@ class ConversationViewModel @Inject constructor(
                     notifier.cancelForThread(initialThreadId)
                 }
             }
-        } else {
+        }
+        if (initialThreadId <= 0) {
+            // Brand-new conversation (no thread yet) or one the provider has never seen:
+            // nothing to wait for, so stop showing the skeleton immediately.
             _state.update { it.copy(loading = false) }
             resolveContact()
         }
     }
 
-    private suspend fun observeConversation() {
-        if (initialThreadId <= 0) return
-        conversationRepository.observeConversation(initialThreadId).collect { conversation ->
-            _state.update {
-                it.copy(
-                    conversation = conversation,
-                    blocked = conversation?.isBlocked == true,
-                    address = it.address.ifBlank { conversation?.address.orEmpty() },
-                )
+    private suspend fun collectConversation() {
+        observedThread
+            .filter { it != 0L }
+            .distinctUntilChanged()
+            .flatMapLatest { threadId -> conversationRepository.observeConversation(threadId) }
+            .collect { conversation ->
+                _state.update {
+                    it.copy(
+                        conversation = conversation,
+                        blocked = conversation?.isBlocked == true,
+                        address = it.address.ifBlank { conversation?.address.orEmpty() },
+                    )
+                }
+                if (conversation != null && _state.value.contact == null) {
+                    resolveContact()
+                }
             }
-            if (conversation != null && _state.value.contact == null) {
-                resolveContact()
-            }
-        }
+    }
+
+    private suspend fun collectMessages() {
+        observedThread
+            .filter { it != 0L }
+            .distinctUntilChanged()
+            .flatMapLatest { threadId -> conversationRepository.observeMessages(threadId) }
+            .collect { page -> applyPage(page, appendOlder = false) }
     }
 
     private suspend fun observeScheduled() {
-        if (initialThreadId <= 0) return
-        scheduledRepository.observeForThread(initialThreadId).collect { rows ->
-            _state.update { it.copy(scheduled = rows) }
-        }
+        observedThread
+            .filter { it != 0L }
+            .distinctUntilChanged()
+            .flatMapLatest { threadId -> scheduledRepository.observeForThread(threadId) }
+            .collect { rows -> _state.update { it.copy(scheduled = rows) } }
     }
 
     private fun recomputeSmartReplies() {
         val suggestion = SmartReplies.suggest(_state.value.lastIncoming?.body)
         if (suggestion != _state.value.smartReplies) {
             _state.update { it.copy(smartReplies = suggestion) }
-        }
-    }
-
-    private suspend fun observeMessages() {
-        if (initialThreadId <= 0) return
-        conversationRepository.observeMessages(initialThreadId).collect { page ->
-            applyPage(page, appendOlder = false)
         }
     }
 
@@ -278,8 +294,7 @@ class ConversationViewModel @Inject constructor(
                 if (threadId != null && threadId > 0) {
                     currentThreadId = threadId
                     _state.update { it.copy(threadId = threadId) }
-                    launch { observeConversation() }
-                    launch { observeMessages() }
+                    observedThread.value = threadId
                     loadDraft()
                 }
             }
@@ -323,8 +338,7 @@ class ConversationViewModel @Inject constructor(
                         if (resolved != null && resolved > 0) {
                             currentThreadId = resolved
                             _state.update { it.copy(threadId = resolved) }
-                            observeConversation()
-                            observeMessages()
+                            observedThread.value = resolved
                             _events.value = ConversationEvent.StartedConversation(resolved)
                         }
                     }
