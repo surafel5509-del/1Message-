@@ -41,6 +41,7 @@ import com.onemessages.app.ui.settings.StorageSettingsRoute
 fun OneMessagesNavHost(
     navController: NavHostController = rememberNavController(),
     hasSmsPermission: Boolean,
+    hasNotificationPermission: Boolean = true,
     roleState: SmsRoleState,
     hasContactsPermission: Boolean,
     isExpandedLayout: Boolean,
@@ -126,9 +127,11 @@ fun OneMessagesNavHost(
                             onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
+                            hasNotificationPermission = hasNotificationPermission,
                             roleState = roleState,
                             onRequestSmsPermission = onRequestSmsPermission,
                             onRequestRole = onRequestRole,
+                            onOpenNotificationSettings = onOpenSystemNotificationSettings,
                         )
                     }
                     composable(Routes.STARRED) {
@@ -143,9 +146,11 @@ fun OneMessagesNavHost(
                             onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
+                            hasNotificationPermission = hasNotificationPermission,
                             roleState = roleState,
                             onRequestSmsPermission = onRequestSmsPermission,
                             onRequestRole = onRequestRole,
+                            onOpenNotificationSettings = onOpenSystemNotificationSettings,
                         )
                     }
                     composable(Routes.ARCHIVED) {
@@ -160,9 +165,11 @@ fun OneMessagesNavHost(
                             onOpenContacts = { navController.navigate(Routes.CONTACTS) },
                             onOpenSettings = { navigateTopLevel(Routes.SETTINGS) },
                             hasSmsPermission = hasSmsPermission,
+                            hasNotificationPermission = hasNotificationPermission,
                             roleState = roleState,
                             onRequestSmsPermission = onRequestSmsPermission,
                             onRequestRole = onRequestRole,
+                            onOpenNotificationSettings = onOpenSystemNotificationSettings,
                         )
                     }
                     composable(Routes.CONTACTS) {

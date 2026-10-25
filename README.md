@@ -32,9 +32,9 @@ generated from that same run and now states the exact test totals read from
 `app/build/test-results/testDebugUnitTest` — check the numbers there rather than trusting a
 README claim.
 
-The latest verified build at the time of writing is `apk-17` (commit `4b7f713`):
-`41` JVM tests, `0` failures, `0` errors, `0` skipped; `app-debug.apk` 19,859,840 B and
-`app-release.apk` 2,382,724 B.
+The latest verified build is the newest `apk-*` prerelease; each release body names the commit
+it was built from and the exact test totals read from the JUnit XML. Values drift with every
+push, so check the release rather than this line.
 
 **What is verified and what is not**
 
@@ -140,6 +140,64 @@ The icon set was rebuilt as well: a vector adaptive icon (gradient background, w
 bubble inside the 66 dp safe zone), an outlined monochrome layer for Android 13 themed icons,
 the same mark for the splash screen, and a flat white silhouette for the status-bar
 notification. No bitmap densities are shipped, so the icon stays sharp from 1× to 4×.
+
+### Fixed: messages are now saved, sent and received
+
+The build before this one had three concrete defects that together looked like "the app does
+not send, save or receive anything". All three are fixed in code:
+
+1. **Sends were refused before reaching the radio.** `SmsSender` rejected a send with
+   "no SIM" whenever the SIM list was empty — but the list is only enumerable with
+   `READ_PHONE_STATE`, which is an optional permission. Denying it (the normal case, since it
+   is requested separately from SMS) made every send fail instantly. The send path now only
+   refuses when the radio itself is off (airplane mode / SIM absent) and otherwise asks
+   `SmsManager` to use the platform's default subscription.
+2. **Sent messages vanished.** An outgoing message only existed as a row in the in-flight
+   outbox, and that row is hidden the moment the send completes; the copy in Android's provider
+   only exists while this app holds the default-SMS role. The app now keeps its own archive
+   (`local_messages`, schema v4): every outgoing message is written *before* it reaches
+   `SmsManager`, every incoming broadcast is written *before* the provider is touched, and both
+   are updated with sent/delivered/failed results. The inbox and the thread view merge the
+   archive with the provider, de-duplicating by provider id and by content+timestamp, so a
+   message is never shown twice and never disappears.
+3. **New conversations lost their messages.** The first message to a number was stored against
+   a placeholder thread id and never followed the conversation. Archive rows now use a stable
+   synthetic thread id until the provider allocates a real one, and are re-pointed when it
+   does; the conversation screen observes the thread reactively instead of being pinned to the
+   id it was opened with.
+
+Two more things that made receiving look broken:
+
+* **Receiving needs the default-SMS role.** Android only delivers `SMS_DELIVER` to the default
+  messaging app — this is a platform rule, not a bug we can code around. When the role is
+  missing, the inbox now shows an explicit banner saying new messages cannot arrive, instead of
+  a quiet "not default" label. Granting the role is the fix, and it is one tap away.
+* **A denied notification permission hides arrivals.** The inbox now shows a card explaining
+  that messages are still saved but no notification will appear, with a direct link to the
+  system notification settings.
+
+Nothing above has been executed on a device yet — the CI run proves it compiles, passes the
+JVM tests and packages both APKs. The device checklist in §7 is the way to confirm the fixes on
+real hardware.
+
+### Navigation and design (this build)
+
+* **Three-tab navigation.** The four-item `NavigationBar` is replaced by a floating rounded bar
+  with three destinations — Chats, Starred, Settings — where the selected tab expands into an
+  aurora pill with its label and Chats carries an unread-count badge. Contacts moved to an icon
+  in the chats header (it is a screen, not a destination). Tablets get the same design as a
+  vertical rail.
+* **Notifications.** Each message notification now carries the sender's profile picture (decoded
+  from contacts, or a gradient monogram when there is none) as its large icon, the brand colour,
+  the app name as subtext, a MessagingStyle history with per-sender `Person` icons, an inline
+  reply with RemoteInput, mark-as-read, and a grouped summary.
+* **Chat screen.** Compact header with a circular back affordance, grouped run-shaped bubbles in
+  softened container tones instead of full-saturation accent, staggered skeleton bubbles while
+  the first page loads, and a designed empty state.
+* **Settings.** A hero card (brand mark, version, role status pill, role CTA) above the existing
+  grouped sections; the tab has no back arrow.
+* **Icons.** Rebuilt launcher foreground, monochrome layer, splash mark and a corrected status
+  bar icon (the dots are now real cut-outs via `fillType="evenOdd"`, so they survive system tinting).
 
 ### New in this build: scheduling, suggestions, export
 

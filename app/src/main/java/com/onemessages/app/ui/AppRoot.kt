@@ -122,6 +122,7 @@ fun AppRoot(
             else -> {
                 OneMessagesNavHost(
                     hasSmsPermission = permissions.sms,
+                    hasNotificationPermission = permissions.notifications,
                     roleState = role,
                     hasContactsPermission = permissions.contacts,
                     isExpandedLayout = isExpanded,

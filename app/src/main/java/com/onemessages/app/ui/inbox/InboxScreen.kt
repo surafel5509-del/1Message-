@@ -98,9 +98,11 @@ fun InboxRoute(
     onOpenContacts: () -> Unit,
     onOpenSettings: () -> Unit,
     hasSmsPermission: Boolean,
+    hasNotificationPermission: Boolean = true,
     roleState: SmsRoleState,
     onRequestSmsPermission: () -> Unit,
     onRequestRole: () -> Unit,
+    onOpenNotificationSettings: () -> Unit = {},
     viewModel: InboxViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -209,6 +211,16 @@ fun InboxRoute(
             }
             if (roleState == SmsRoleState.NOT_DEFAULT) {
                 RoleBanner(onRequestRole)
+            }
+            if (!hasNotificationPermission) {
+                // Without this the app can receive and store a message but never show it, which
+                // looks exactly like "messages are not arriving".
+                PermissionCard(
+                    title = stringResource(R.string.notif_permission_title),
+                    body = stringResource(R.string.notif_permission_body),
+                    actionLabel = stringResource(R.string.open_settings),
+                    onAction = onOpenNotificationSettings,
+                )
             }
 
             if (!state.isSelecting && state.filter != InboxFilter.ARCHIVED) {

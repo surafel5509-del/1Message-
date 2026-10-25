@@ -258,7 +258,7 @@
     <string name="notif_summary">መልዕክቶች</string>
     <string name="notif_hidden_preview">አዲስ መልዕክት</string>
     <string name="notif_permission_needed">ማሳወቂያዎች ጠፍተዋል</string>
-    <string name="notif_permission_body">መተግበሪያውን ሳይከፍቱ አዲስ መልዕክቶችን ለማየት ማሳወቂያ ይፍቀዱ።</string>
+    <string name="notif_permission_body">ማሳወቂያ ሲዘጋ አዲስ መልዕክት ሲመጣ ማሳወቂያ ማሳየት አይቻልም። መልዕክቶቹ ይቀመጣሉ፤ ግን ስለእነሱ አይነገርዎትም።</string>
     <string name="notif_enable">ማሳወቂያ አብራ</string>
     <string name="notif_test_title">የሙከራ ማሳወቂያ</string>
     <string name="notif_test_body">ይህን ማየት ከቻሉ ማሳወቂያዎች ይሰራሉ። ቅንብሮችዎን ለማየት በረዥም ይጫኑ።</string>
@@ -600,4 +600,5 @@
     <string name="export_conversation_failed">ውይይቱን ማስቀመጥ አልተቻለም</string>
     <string name="export_speaker_me">እኔ</string>
     <string name="role_banner_body">ነባሪ የመልዕክት መተግበሪያ አይደለም። 1 MESSAGES ነባሪ እስኪሆን ድረስ አዲስ መልዕክቶች መቀበል አይቻልም፤ ማሳወቂያም አይታይም።</string>
+    <string name="notif_permission_title">ማሳወቂያዎች ጠፍተዋል</string>
 </resources>
