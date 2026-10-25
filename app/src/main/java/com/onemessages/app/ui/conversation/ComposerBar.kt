@@ -83,7 +83,8 @@ fun ComposerBar(
     var simMenuOpen by remember { mutableStateOf(false) }
     val segments = remember(draft) { SmsSegments.estimate(draft) }
     val dark = isSystemInDarkTheme()
-    val canSend = draft.isNotBlank() && !sending && sims.isNotEmpty() && !onBlocked
+    // A missing SIM list only means READ_PHONE_STATE was denied; it never means "cannot send".
+    val canSend = draft.isNotBlank() && !sending && !onBlocked
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,

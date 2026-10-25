@@ -825,8 +825,12 @@ class SystemSmsDataSource @Inject constructor(
             put(Telephony.Sms.THREAD_ID, threadId)
             if (subscriptionId >= 0) put("sub_id", subscriptionId)
         }
+        // Insert into the box that matches the row: AOSP's SmsProvider expects a concrete
+        // folder URI, and writing to content://sms with a box in the values is provider
+        // dependent (some ROMs reject it, which silently lost sent messages).
         runCatching {
-            val uri = resolver.insert(Telephony.Sms.CONTENT_URI, values)
+            val uri = resolver.insert(Telephony.Sms.Outbox.CONTENT_URI, values)
+                ?: resolver.insert(Telephony.Sms.CONTENT_URI, values)
             uri?.let { ContentUris.parseId(it) to it }
         }.onFailure { Logx.e("Provider", "outgoing sms insert failed", it) }.getOrNull()
     }
@@ -837,13 +841,29 @@ class SystemSmsDataSource @Inject constructor(
         status: Int,
         subscriptionId: Int = -1,
     ): Boolean = withContext(Dispatchers.IO) {
+        // DATE is deliberately left alone: rewriting it reordered the thread and made the
+        // message jump above newer replies.
         val values = ContentValues().apply {
             put(Telephony.Sms.TYPE, type)
             put(Telephony.Sms.STATUS, status)
-            put(Telephony.Sms.DATE, System.currentTimeMillis())
             if (subscriptionId >= 0) put("sub_id", subscriptionId)
         }
-        runCatching { resolver.update(uri, values, null, null) > 0 }.getOrDefault(false)
+        runCatching {
+            if (resolver.update(uri, values, null, null) > 0) {
+                true
+            } else {
+                // Some ROMs reject updates on a box-scoped URI; retry on the flat message URI
+                // so the sent/failed state is never silently dropped.
+                runCatching { ContentUris.parseId(uri) }.getOrNull()?.let { id ->
+                    resolver.update(
+                        ContentUris.withAppendedId(Telephony.Sms.CONTENT_URI, id),
+                        values,
+                        null,
+                        null,
+                    ) > 0
+                } ?: false
+            }
+        }.getOrDefault(false)
     }
 
     suspend fun obtainThreadId(address: String): Long? = withContext(Dispatchers.IO) {

@@ -14,6 +14,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         OutboxEntity::class,
         StarredMessageEntity::class,
         ScheduledMessageEntity::class,
+        LocalMessageEntity::class,
     ],
     version = OneMessagesDatabase.VERSION,
     exportSchema = true,
@@ -26,10 +27,11 @@ abstract class OneMessagesDatabase : RoomDatabase() {
     abstract fun outboxDao(): OutboxDao
     abstract fun starredMessageDao(): StarredMessageDao
     abstract fun scheduledMessageDao(): ScheduledMessageDao
+    abstract fun localMessageDao(): LocalMessageDao
 
     companion object {
         const val NAME = "onemessages.db"
-        const val VERSION = 3
+        const val VERSION = 4
 
         /**
          * v2 added per-conversation blocking, priority notifications and category overrides.
@@ -92,7 +94,41 @@ abstract class OneMessagesDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v4 adds the app-owned message archive. Nothing is migrated into it: the archive
+         * fills itself as messages are sent and received, and the provider remains the
+         * source of truth for history that already exists on the device.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `local_messages` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `threadId` INTEGER NOT NULL,
+                        `address` TEXT NOT NULL,
+                        `addressKey` TEXT NOT NULL,
+                        `body` TEXT NOT NULL,
+                        `direction` TEXT NOT NULL,
+                        `status` TEXT NOT NULL,
+                        `timestamp` INTEGER NOT NULL,
+                        `subscriptionId` INTEGER NOT NULL,
+                        `systemMessageId` INTEGER,
+                        `providerUri` TEXT,
+                        `read` INTEGER NOT NULL,
+                        `errorCode` INTEGER,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_local_messages_threadId` ON `local_messages` (`threadId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_local_messages_addressKey` ON `local_messages` (`addressKey`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_local_messages_timestamp` ON `local_messages` (`timestamp`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_local_messages_systemMessageId` ON `local_messages` (`systemMessageId`)")
+            }
+        }
+
         /** Applied only on fresh installs / destructive test harnesses. */
-        val ALL_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+        val ALL_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
     }
 }

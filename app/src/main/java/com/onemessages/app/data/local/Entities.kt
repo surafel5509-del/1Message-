@@ -110,3 +110,47 @@ data class ScheduledMessageEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val lastError: String? = null,
 )
+
+/**
+ * The app's own copy of every message it sent or received.
+ *
+ * Android's SMS provider is only writable while this app holds the default-SMS role, and a
+ * message that only lives in an in-flight outbox row disappears the moment the send completes.
+ * That combination is what made sent messages vanish (and made receiving look broken when the
+ * role was missing). This table is the app's authoritative archive:
+ *
+ *  - every outgoing message is written here *before* it is handed to SmsManager;
+ *  - every incoming broadcast is written here before the provider is touched;
+ *  - [systemMessageId] links the row to the provider copy once that copy exists, so the UI can
+ *    hide the duplicate instead of showing the message twice;
+ *  - rows with a [threadId] <= 0 belong to a conversation the provider has not given an id for
+ *    yet (see [com.onemessages.app.data.repository.MessageArchiveRepository.syntheticThreadId]).
+ */
+@Entity(
+    tableName = "local_messages",
+    indices = [
+        Index(value = ["threadId"]),
+        Index(value = ["addressKey"]),
+        Index(value = ["timestamp"]),
+        Index(value = ["systemMessageId"]),
+    ],
+)
+data class LocalMessageEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val threadId: Long,
+    val address: String,
+    /** Digits-only comparison key; used to match a thread without a provider id. */
+    val addressKey: String,
+    val body: String,
+    /** INCOMING / OUTGOING, as [com.onemessages.app.model.Direction] names. */
+    val direction: String,
+    /** [com.onemessages.app.model.MessageStatus] name. */
+    val status: String,
+    val timestamp: Long,
+    val subscriptionId: Int,
+    val systemMessageId: Long? = null,
+    val providerUri: String? = null,
+    val read: Boolean = true,
+    val errorCode: Int? = null,
+    val createdAt: Long = System.currentTimeMillis(),
+)

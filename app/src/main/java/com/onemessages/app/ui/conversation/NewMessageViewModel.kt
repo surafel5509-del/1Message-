@@ -150,10 +150,6 @@ class NewMessageViewModel @Inject constructor(
             _state.update { it.copy(errorRes = com.onemessages.app.R.string.invalid_number) }
             return
         }
-        if (current.sims.isEmpty()) {
-            _state.update { it.copy(errorRes = com.onemessages.app.R.string.error_no_sim) }
-            return
-        }
         _state.update { it.copy(sending = true, errorRes = null) }
         viewModelScope.launch {
             var firstThread: Long? = null
@@ -170,7 +166,11 @@ class NewMessageViewModel @Inject constructor(
                     )
                 ) {
                     is SendOutcome.Accepted -> if (firstThread == null) {
-                        firstThread = conversationRepository.findThreadForAddress(recipient.address) ?: -1L
+                        // The archive row for this send is keyed by the address until the
+                        // provider hands out a thread id, so a null here is not a failure:
+                        // the conversation opens on the address instead.
+                        firstThread = conversationRepository.findThreadForAddress(recipient.address)
+                            ?: conversationRepository.resolveThreadId(recipient.address)
                     }
                     is SendOutcome.Rejected -> {
                         failures++

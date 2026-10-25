@@ -8,6 +8,7 @@ import com.onemessages.app.data.local.DraftDao
 import com.onemessages.app.data.local.DraftEntity
 import com.onemessages.app.data.local.OutboxDao
 import com.onemessages.app.data.local.StarredMessageDao
+import com.onemessages.app.data.local.LocalMessageEntity
 import com.onemessages.app.data.local.StarredMessageEntity
 import com.onemessages.app.data.preferences.AppSettings
 import com.onemessages.app.data.preferences.SettingsRepository
@@ -23,7 +24,6 @@ import com.onemessages.app.model.Message
 import com.onemessages.app.model.MessageSource
 import com.onemessages.app.model.MessageStatus
 import com.onemessages.app.model.OutboxEntry
-import com.onemessages.app.model.OutboxState
 import com.onemessages.app.model.SearchHit
 import com.onemessages.app.telephony.SubscriptionRepository
 import com.onemessages.app.telephony.SystemSmsDataSource
@@ -41,6 +41,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/** Two copies of the same message never differ by more than this. */
+private const val DUPLICATE_WINDOW_MS = 3_000L
 
 data class MessagePage(
     val messages: List<Message>,
@@ -65,6 +68,7 @@ class ConversationRepository @Inject constructor(
     private val notifier: ProviderChangeNotifier,
     private val subscriptions: SubscriptionRepository,
     private val organization: OrganizationRepository,
+    private val archive: MessageArchiveRepository,
 ) {
 
     private data class MetadataBundle(
@@ -214,7 +218,15 @@ class ConversationRepository @Inject constructor(
             )
         }
 
-        val filtered = conversations.filter { conversation ->
+        val withArchive = conversations + archiveOnlyConversations(
+            existingThreadIds = conversations.map { it.threadId }.toSet(),
+            existingAddressKeys = conversations.map { archive.addressKey(it.address) }.toSet(),
+            metaByThread = metaByThread,
+            draftsByThread = draftsByThread,
+            bundle = bundle,
+        )
+
+        val filtered = withArchive.filter { conversation ->
             when (filter) {
                 InboxFilter.UNREAD -> conversation.unreadCount > 0
                 InboxFilter.STARRED -> conversation.isStarred ||
@@ -233,6 +245,82 @@ class ConversationRepository @Inject constructor(
                     .thenByDescending { it.lastTimestamp }
             }
         )
+    }
+
+
+    /**
+     * Conversations that only exist in the archive.
+     *
+     * Without the default-SMS role the provider never receives the messages this app sends, so
+     * the inbox would look empty after a perfectly successful send. Every archived address that
+     * the provider does not already list is turned into a conversation here, using the same
+     * metadata (pin, mute, draft) as a provider-backed row.
+     */
+    private suspend fun archiveOnlyConversations(
+        existingThreadIds: Set<Long>,
+        existingAddressKeys: Set<String>,
+        metaByThread: Map<Long, ConversationMetaEntity>,
+        draftsByThread: Map<Long, DraftEntity>,
+        bundle: MetadataBundle,
+    ): List<Conversation> {
+        val rows = archive.snapshot()
+        if (rows.isEmpty()) return emptyList()
+        val grouped = rows.groupBy { it.addressKey }
+        val region = subscriptions.regionHint()
+        return grouped.mapNotNull { (key, list) ->
+            if (key.isBlank() || key in existingAddressKeys) return@mapNotNull null
+            val latest = list.maxByOrNull { it.timestamp } ?: return@mapNotNull null
+            val syntheticId = archive.syntheticThreadId(key)
+            // Addresses that already have a provider thread are listed there; only keep the
+            // synthetic id when the provider truly has nothing for this conversation.
+            val existingRealThread = if (existingThreadIds.isEmpty()) {
+                null
+            } else {
+                list.firstOrNull { it.threadId > 0 && it.threadId in existingThreadIds }
+            }
+            val threadId = existingRealThread?.threadId ?: syntheticId
+            if (existingRealThread != null && existingRealThread.threadId in existingThreadIds) {
+                return@mapNotNull null
+            }
+            val identity = contacts.lookup(latest.address)
+            val meta = metaByThread[threadId] ?: metaByThread[syntheticId]
+            val draft = draftsByThread[threadId]
+            val unread = list.count { it.direction == Direction.INCOMING.name && !it.read }
+            Conversation(
+                threadId = threadId,
+                recipientIds = emptyList(),
+                displayName = identity.name?.takeIf { it.isNotBlank() }
+                    ?: PhoneNumbers.formatForDisplay(latest.address, region),
+                address = latest.address,
+                snippet = latest.body,
+                lastTimestamp = latest.timestamp,
+                unreadCount = unread,
+                hasDraft = !draft?.text.isNullOrBlank(),
+                draftText = draft?.text,
+                isPinned = meta?.isPinned == true,
+                isArchived = meta?.isArchived == true,
+                isMuted = meta?.isMuted == true,
+                isStarred = meta?.isStarred == true,
+                isGroup = false,
+                isUnknownSender = identity.contactId == null,
+                lastMessageStatus = runCatching {
+                    MessageStatus.valueOf(latest.status)
+                }.getOrDefault(MessageStatus.UNKNOWN),
+                lastDirection = if (latest.direction == Direction.INCOMING.name) {
+                    Direction.INCOMING
+                } else {
+                    Direction.OUTGOING
+                },
+                lastSource = MessageSource.SMS,
+                subscriptionId = latest.subscriptionId,
+                photoUri = identity.photoUri,
+                categories = emptySet(),
+                hasAttachmentsInLastMessage = false,
+                isBlocked = meta?.isBlocked == true,
+                priority = meta?.priority == true,
+                customSound = meta?.customSound,
+            )
+        }
     }
 
     private fun mapStatus(facts: SystemSmsDataSource.LastMessageFacts?): MessageStatus {
@@ -283,7 +371,8 @@ class ConversationRepository @Inject constructor(
             .flowOn(Dispatchers.IO)
 
     suspend fun getConversation(threadId: Long): Conversation? = withContext(Dispatchers.IO) {
-        if (threadId <= 0) return@withContext null
+        if (threadId < 0) return@withContext getArchivedConversation(threadId)
+        if (threadId == 0L) return@withContext null
         val meta = metaDao.get(threadId)
         val thread = provider.loadThreads().firstOrNull { it.threadId == threadId }
         val addresses = provider.threadRecipientAddresses(threadId)
@@ -318,6 +407,52 @@ class ConversationRepository @Inject constructor(
             lastSource = MessageSource.SMS,
             subscriptionId = provider.lastMessageFacts(setOf(threadId))[threadId]?.subscriptionId ?: -1,
             photoUri = identity?.photoUri,
+            categories = emptySet(),
+            hasAttachmentsInLastMessage = false,
+            isBlocked = meta?.isBlocked == true,
+            priority = meta?.priority == true,
+            customSound = meta?.customSound,
+        )
+    }
+
+    /**
+     * Builds a conversation for a thread the provider does not have: messages sent while this
+     * app was not the default SMS app live only in the archive, under a synthetic thread id.
+     */
+    private suspend fun getArchivedConversation(threadId: Long): Conversation? {
+        val rows = archive.rowsForThread(threadId)
+        if (rows.isEmpty()) return null
+        val latest = rows.maxByOrNull { it.timestamp } ?: return null
+        val identity = contacts.lookup(latest.address)
+        val meta = metaDao.get(threadId)
+        val draft = draftDao.get(threadId)
+        return Conversation(
+            threadId = threadId,
+            recipientIds = emptyList(),
+            displayName = identity.name?.takeIf { it.isNotBlank() }
+                ?: PhoneNumbers.formatForDisplay(latest.address, subscriptions.regionHint()),
+            address = latest.address,
+            snippet = latest.body,
+            lastTimestamp = latest.timestamp,
+            unreadCount = rows.count { it.direction == Direction.INCOMING.name && !it.read },
+            hasDraft = !draft?.text.isNullOrBlank(),
+            draftText = draft?.text,
+            isPinned = meta?.isPinned == true,
+            isArchived = meta?.isArchived == true,
+            isMuted = meta?.isMuted == true,
+            isStarred = meta?.isStarred == true,
+            isGroup = false,
+            isUnknownSender = identity.contactId == null,
+            lastMessageStatus = runCatching { MessageStatus.valueOf(latest.status) }
+                .getOrDefault(MessageStatus.UNKNOWN),
+            lastDirection = if (latest.direction == Direction.INCOMING.name) {
+                Direction.INCOMING
+            } else {
+                Direction.OUTGOING
+            },
+            lastSource = MessageSource.SMS,
+            subscriptionId = latest.subscriptionId,
+            photoUri = identity.photoUri,
             categories = emptySet(),
             hasAttachmentsInLastMessage = false,
             isBlocked = meta?.isBlocked == true,
@@ -362,15 +497,36 @@ class ConversationRepository @Inject constructor(
         before: Long?,
         bundle: MetadataBundle,
     ): MessagePage {
-        val messages = provider.loadMessages(threadId, pageSize + 1, before).toMutableList()
-        val hasMore = messages.size > pageSize
-        val trimmed = if (hasMore) messages.takeLast(pageSize) else messages
-        val outbox = outboxDao.pendingForThread(threadId)
-            .filter { it.state == OutboxState.QUEUED.name || it.state == OutboxState.FAILED.name }
-        val synthetic = outbox.filter { it.systemMessageId == null }.map { it.toSyntheticMessage() }
+        val providerMessages = if (threadId > 0) {
+            provider.loadMessages(threadId, pageSize + 1, before)
+        } else {
+            emptyList()
+        }
+        val hasMore = providerMessages.size > pageSize
+        val trimmed = if (hasMore) providerMessages.takeLast(pageSize) else providerMessages
+
+        // The archive always wins for messages the provider does not have: everything sent
+        // while this app was not the default SMS app, plus anything still mid-flight. Rows the
+        // provider also has are dropped here so nothing shows twice.
+        val archivedRows = archive.rowsForThread(threadId)
+        val archiveOnly = archivedRows
+            .filter { local ->
+                val mirrored = local.systemMessageId?.let { systemId ->
+                    trimmed.any { providerMessage -> providerMessage.id == systemId }
+                } == true
+                val sameContent = trimmed.any { providerMessage ->
+                    providerMessage.direction == local.direction &&
+                        providerMessage.body == local.body &&
+                        kotlin.math.abs(providerMessage.timestamp - local.timestamp) <= DUPLICATE_WINDOW_MS
+                }
+                !mirrored && !sameContent
+            }
+            .filter { local -> before == null || local.timestamp < before }
+            .map { local -> archive.toMessage(local) }
+
         val starredIds = starredDao.snapshot().filter { it.threadId == threadId }.map { it.messageId }.toSet()
         val settings = bundle.settings
-        val enriched = (trimmed + synthetic)
+        val enriched = (trimmed + archiveOnly)
             .sortedWith(compareBy<Message> { it.timestamp }.thenBy { it.id })
             .map { message ->
                 message.copy(
@@ -387,25 +543,6 @@ class ConversationRepository @Inject constructor(
             }
         return MessagePage(enriched, hasMore)
     }
-
-    private fun com.onemessages.app.data.local.OutboxEntity.toSyntheticMessage(): Message = Message(
-        id = -id,
-        source = MessageSource.SMS,
-        threadId = threadId,
-        address = address,
-        body = body,
-        timestamp = createdAt,
-        direction = Direction.OUTGOING,
-        status = when (state) {
-            OutboxState.FAILED.name -> MessageStatus.FAILED
-            OutboxState.DELIVERED.name -> MessageStatus.DELIVERED
-            OutboxState.SENT.name -> MessageStatus.SENT
-            else -> MessageStatus.SENDING
-        },
-        read = true,
-        starred = false,
-        subscriptionId = subscriptionId,
-    )
 
     fun observeDraft(threadId: Long): Flow<String> =
         draftDao.observe(threadId).map { it?.text.orEmpty() }.flowOn(Dispatchers.IO)
@@ -477,7 +614,8 @@ class ConversationRepository @Inject constructor(
     }
 
     suspend fun markRead(threadId: Long) {
-        provider.setThreadRead(threadId, true)
+        if (threadId > 0) provider.setThreadRead(threadId, true)
+        archive.markThreadRead(threadId)
         notifier.notifyChanged()
     }
 
@@ -511,7 +649,8 @@ class ConversationRepository @Inject constructor(
     }
 
     suspend fun deleteThread(threadId: Long) {
-        provider.deleteThread(threadId)
+        if (threadId > 0) provider.deleteThread(threadId)
+        archive.deleteThread(threadId)
         metaDao.delete(threadId)
         draftDao.delete(threadId)
         starredDao.deleteForThread(threadId)
@@ -519,6 +658,13 @@ class ConversationRepository @Inject constructor(
     }
 
     suspend fun deleteMessage(message: Message): Boolean {
+        // Archived rows have no provider counterpart; delete them from the archive instead.
+        val archiveId = archive.archiveRowId(message)
+        if (archiveId != null) {
+            archive.delete(archiveId)
+            notifier.notifyChanged()
+            return true
+        }
         val deleted = provider.deleteMessage(message.id, message.source)
         if (deleted) {
             starredDao.delete(message.id)
@@ -604,7 +750,13 @@ class ConversationRepository @Inject constructor(
 
     /** Existing system thread for an address, if any. Read-only and safe for any role. */
     suspend fun findThreadForAddress(address: String): Long? = withContext(Dispatchers.IO) {
-        provider.findExistingThreadId(address)
+        val real = provider.findExistingThreadId(address)
+        if (real != null && real > 0) {
+            // Move messages archived before the provider knew this conversation onto its
+            // thread id, so a later reload does not show them in a separate conversation.
+            archive.adoptThread(archive.syntheticThreadId(archive.addressKey(address)), real)
+        }
+        real
     }
 
     /**
@@ -612,8 +764,10 @@ class ConversationRepository @Inject constructor(
      * composer can open before the system thread exists (created on first send).
      */
     suspend fun resolveThreadId(address: String): Long = withContext(Dispatchers.IO) {
+        // The fallback must be the *same* synthetic id the archive used, otherwise a message
+        // sent before the provider knows the conversation would open in an empty thread.
         provider.findExistingThreadId(address)
-            ?: (-kotlin.math.abs(PhoneNumbers.comparisonKey(address).hashCode().toLong()) - 1L)
+            ?: archive.syntheticThreadId(archive.addressKey(address))
     }
 
     suspend fun ensureThread(address: String): Long? = withContext(Dispatchers.IO) {

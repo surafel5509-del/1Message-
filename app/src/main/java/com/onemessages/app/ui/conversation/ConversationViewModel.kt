@@ -10,6 +10,7 @@ import com.onemessages.app.data.preferences.SettingsRepository
 import com.onemessages.app.data.repository.AttachmentRepository
 import com.onemessages.app.data.repository.ConversationRepository
 import com.onemessages.app.data.repository.MessagePage
+import com.onemessages.app.data.repository.MessageArchiveRepository
 import com.onemessages.app.data.repository.ScheduledMessageRepository
 import com.onemessages.app.domain.SmartOrganizer
 import com.onemessages.app.domain.SmartReplyKind
@@ -76,7 +77,12 @@ data class ConversationUiState(
         get() = conversation?.displayName?.takeIf { it.isNotBlank() }
             ?: contact?.name?.takeIf { it.isNotBlank() }
             ?: address
-    val canSend: Boolean get() = !sending && draft.isNotBlank() && sims.isNotEmpty()
+    /**
+     * A message can be sent whenever there is text and the radio is usable. An empty [sims]
+     * list means the SIM could not be *enumerated* (READ_PHONE_STATE denied), not that there
+     * is no SIM, so it must not block sending.
+     */
+    val canSend: Boolean get() = !sending && draft.isNotBlank()
 }
 
 sealed interface ConversationEvent {
@@ -98,6 +104,7 @@ class ConversationViewModel @Inject constructor(
     private val attachments: AttachmentRepository,
     private val notifier: MessageNotifier,
     private val scheduledRepository: ScheduledMessageRepository,
+    private val archive: MessageArchiveRepository,
 ) : ViewModel() {
 
     // Navigation passes threadId as a Long; older links may still hand over a string, so both
@@ -151,7 +158,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch { observeMessages() }
         viewModelScope.launch { observeScheduled() }
         viewModelScope.launch { persistDraft() }
-        if (initialThreadId > 0) {
+        if (initialThreadId != 0L) {
             viewModelScope.launch {
                 val current = settingsRepository.settings.first()
                 if (current.markReadOnOpen) {
@@ -292,10 +299,6 @@ class ConversationViewModel @Inject constructor(
         val current = _state.value
         if (current.sending) return
         if (current.draft.isBlank()) return
-        if (current.sims.isEmpty()) {
-            _events.value = ConversationEvent.SendFailed(SendFailureReason.NO_SIM)
-            return
-        }
         val body = current.draft
         _state.update { it.copy(sending = true) }
         sendJob = viewModelScope.launch {
@@ -313,12 +316,15 @@ class ConversationViewModel @Inject constructor(
                         conversationRepository.clearDraft(current.threadId)
                     }
                     if (current.threadId <= 0) {
-                        val resolved = conversationRepository.findThreadForAddress(
-                            current.address.ifBlank { current.conversation?.address.orEmpty() }
-                        )
+                        val address = current.address.ifBlank {
+                            current.conversation?.address.orEmpty()
+                        }
+                        val resolved = conversationRepository.findThreadForAddress(address)
                         if (resolved != null && resolved > 0) {
                             currentThreadId = resolved
                             _state.update { it.copy(threadId = resolved) }
+                            observeConversation()
+                            observeMessages()
                             _events.value = ConversationEvent.StartedConversation(resolved)
                         }
                     }
@@ -395,8 +401,14 @@ class ConversationViewModel @Inject constructor(
 
     fun retryMessage(message: Message) {
         viewModelScope.launch {
-            if (message.id < 0) {
-                smsSender.retry(-message.id)
+            val archiveId = archive.archiveRowId(message)
+            if (archiveId != null) {
+                _state.update { it.copy(sending = true) }
+                val outcome = smsSender.retryArchived(archiveId)
+                _state.update { it.copy(sending = false) }
+                if (outcome is SendOutcome.Rejected) {
+                    _events.value = ConversationEvent.SendFailed(outcome.reason)
+                }
             } else if (message.status == MessageStatus.FAILED) {
                 smsSender.sendSms(
                     address = message.address.ifBlank { _state.value.address },

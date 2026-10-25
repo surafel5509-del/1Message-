@@ -7,10 +7,12 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsManager
+import android.telephony.SubscriptionManager
 import com.onemessages.app.core.Logx
 import com.onemessages.app.data.local.OutboxDao
 import com.onemessages.app.data.local.OutboxEntity
 import com.onemessages.app.data.preferences.SettingsRepository
+import com.onemessages.app.data.repository.MessageArchiveRepository
 import com.onemessages.app.receivers.SmsStatusReceiver
 import com.onemessages.app.model.MessageSource
 import com.onemessages.app.model.OutboxState
@@ -46,10 +48,20 @@ class SmsSender @Inject constructor(
     private val subscriptions: SubscriptionRepository,
     private val roleManager: SmsRoleManager,
     private val settingsRepository: SettingsRepository,
+    private val archive: MessageArchiveRepository,
 ) {
 
     /** In-flight send keys; prevents duplicate sends from repeated taps across screens. */
     private val inFlight = ConcurrentHashMap<String, Long>()
+
+    /**
+     * Outbox row id -> archive row id.
+     *
+     * They are normally identical (the archive reuses the outbox id). A retry of an archived
+     * message creates a fresh outbox row that must still update the original archive row, so
+     * the mapping is explicit rather than assumed.
+     */
+    private val archiveLinks = ConcurrentHashMap<Long, Long>()
 
     /** Part completion counters per outbox row, used to decide when all parts finished. */
     private val partProgress = ConcurrentHashMap<Long, PartTracker>()
@@ -65,6 +77,8 @@ class SmsSender @Inject constructor(
         threadId: Long,
         subscriptionId: Int,
         isRetry: Boolean = false,
+        /** Existing archive row to update instead of creating a new one (used by retries). */
+        archiveId: Long? = null,
     ): SendOutcome = withContext(Dispatchers.IO) {
         val trimmedAddress = address.trim()
         if (!PhoneNumbers.looksValid(trimmedAddress)) {
@@ -82,17 +96,17 @@ class SmsSender @Inject constructor(
         if (radio == RadioState.AIRPLANE_MODE) {
             return@withContext SendOutcome.Rejected(SendFailureReason.AIRPLANE_MODE)
         }
-        if (!subscriptions.hasPhoneStatePermission() && subscriptions.sims().isEmpty()) {
-            // Without phone-state we may not be able to enumerate SIMs; still attempt the
-            // default subscription so we do not block sending on a re-permission.
-            Logx.i("Send", "no SIM enumerable, attempting default subscription")
-        }
-        val subId = subscriptions.resolveSubscription(
+        // Enumerating SIMs needs READ_PHONE_STATE, which the user is free to deny. A missing
+        // list therefore says nothing about whether the radio can send: fall back to the
+        // default subscription and let SmsManager answer. Refusing here was the reason sends
+        // silently failed with "no SIM" on devices where phone-state was not granted.
+        var subId = subscriptions.resolveSubscription(
             preferred = settings.preferredSubscriptionId,
             threadSubscription = subscriptionId,
         )
-        if (subId < 0 && subscriptions.sims().isEmpty()) {
-            return@withContext SendOutcome.Rejected(SendFailureReason.NO_SIM)
+        if (subId < 0) {
+            Logx.i("Send", "no enumerable SIM, using the platform default subscription")
+            subId = SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
         }
 
         // Idempotency: identical content to the same address while a send is in flight is
@@ -120,6 +134,25 @@ class SmsSender @Inject constructor(
         )
         inFlight[key] = outboxId
 
+        // The archive row is written before the platform ever sees the message: if the process
+        // dies mid-send (or this app is not the default SMS app), the text still exists in the
+        // conversation instead of vanishing with the outbox row.
+        if (archiveId != null) {
+            archiveLinks[outboxId] = archiveId
+            runCatching { archive.markQueued(archiveId) }
+        } else {
+            runCatching {
+                archive.recordOutgoing(
+                    address = trimmedAddress,
+                    body = sender,
+                    threadId = threadId,
+                    subscriptionId = subId,
+                    timestamp = now,
+                    rowId = outboxId,
+                )
+            }.onFailure { Logx.w("Send", "could not archive outgoing message", it) }
+        }
+
         // Record the outgoing message in the system database when we own the role, so other
         // apps and the system UI stay consistent.
         var providerUri: Uri? = null
@@ -136,6 +169,13 @@ class SmsSender @Inject constructor(
                 systemMessageId = inserted.first
                 providerUri = inserted.second
                 outboxDao.attachSystemMessage(outboxId, systemMessageId, providerUri?.toString())
+                // A first message to a new number was archived under a synthetic thread id;
+                // move it onto the real thread so the inbox and the thread agree.
+                val realThread = provider.findExistingThreadId(trimmedAddress)
+                if (realThread != null && realThread > 0 && realThread != threadId) {
+                    archive.setThread(archiveIdFor(outboxId), realThread)
+                }
+                archive.attachSystemMessage(archiveIdFor(outboxId), systemMessageId, providerUri?.toString())
             }
         }
 
@@ -246,6 +286,7 @@ class SmsSender @Inject constructor(
         systemMessageId: Long?,
         reason: SendFailureReason,
     ) {
+        runCatching { archive.markFailed(archiveIdFor(outboxId), reason.ordinal) }
         outboxDao.updateState(
             id = outboxId,
             state = OutboxState.FAILED.name,
@@ -275,6 +316,7 @@ class SmsSender @Inject constructor(
     }
 
     suspend fun onDeliveredResult(outboxId: Long, providerUri: Uri?) {
+        runCatching { archive.markDelivered(archiveIdFor(outboxId)) }
         outboxDao.updateState(outboxId, OutboxState.DELIVERED.name, errorCode = null)
         providerUri?.let {
             if (roleManager.isDefaultSmsApp()) {
@@ -289,6 +331,7 @@ class SmsSender @Inject constructor(
 
     private suspend fun finalizeSuccess(outboxId: Long, providerUri: Uri?) {
         partProgress.remove(outboxId)
+        runCatching { archive.markSent(archiveIdFor(outboxId), null, providerUri?.toString()) }
         outboxDao.updateState(outboxId, OutboxState.SENT.name, errorCode = null)
         providerUri?.let {
             if (roleManager.isDefaultSmsApp()) {
@@ -304,6 +347,7 @@ class SmsSender @Inject constructor(
 
     private suspend fun finalizeFailure(outboxId: Long, providerUri: Uri?, resultCode: Int) {
         partProgress.remove(outboxId)
+        runCatching { archive.markFailed(archiveIdFor(outboxId), resultCode) }
         outboxDao.updateState(
             id = outboxId,
             state = OutboxState.FAILED.name,
@@ -338,7 +382,29 @@ class SmsSender @Inject constructor(
 
     suspend fun cancel(outboxId: Long) {
         outboxDao.updateState(outboxId, OutboxState.CANCELLED.name, errorCode = null)
+        runCatching { archive.delete(archiveIdFor(outboxId)) }
     }
+
+    /**
+     * Re-sends an archived message that never reached the radio.
+     *
+     * The archived row is reused (same id), so retrying cannot create a second copy of the
+     * message in the conversation.
+     */
+    suspend fun retryArchived(archiveId: Long): SendOutcome = withContext(Dispatchers.IO) {
+        val row = archive.get(archiveId)
+            ?: return@withContext SendOutcome.Rejected(SendFailureReason.UNKNOWN)
+        sendSms(
+            address = row.address,
+            body = row.body,
+            threadId = row.threadId,
+            subscriptionId = row.subscriptionId,
+            isRetry = true,
+            archiveId = archiveId,
+        )
+    }
+
+    private fun archiveIdFor(outboxId: Long): Long = archiveLinks[outboxId] ?: outboxId
 
     fun mapException(error: Throwable): SendFailureReason = when (error) {
         is SecurityException -> SendFailureReason.PERMISSION_DENIED

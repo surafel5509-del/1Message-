@@ -220,3 +220,68 @@ interface ScheduledMessageDao {
     @Query("DELETE FROM scheduled_messages")
     suspend fun clear()
 }
+
+@Dao
+interface LocalMessageDao {
+
+    @Query("SELECT * FROM local_messages WHERE threadId = :threadId ORDER BY timestamp ASC")
+    suspend fun forThread(threadId: Long): List<LocalMessageEntity>
+
+    @Query("SELECT * FROM local_messages WHERE addressKey = :addressKey ORDER BY timestamp ASC")
+    suspend fun forAddress(addressKey: String): List<LocalMessageEntity>
+
+    @Query("SELECT * FROM local_messages ORDER BY timestamp DESC")
+    fun observeAll(): Flow<List<LocalMessageEntity>>
+
+    @Query("SELECT * FROM local_messages ORDER BY timestamp DESC")
+    suspend fun snapshot(): List<LocalMessageEntity>
+
+    @Query("SELECT * FROM local_messages WHERE id = :id LIMIT 1")
+    suspend fun get(id: Long): LocalMessageEntity?
+
+    /** Newest local rows for a conversation that has no provider thread id yet. */
+    @Query("SELECT * FROM local_messages WHERE threadId = :threadId ORDER BY timestamp DESC LIMIT :limit")
+    suspend fun latestForThread(threadId: Long, limit: Int): List<LocalMessageEntity>
+
+    @Query(
+        "SELECT * FROM local_messages WHERE body LIKE :pattern OR address LIKE :pattern " +
+            "ORDER BY timestamp DESC LIMIT :limit"
+    )
+    suspend fun search(pattern: String, limit: Int): List<LocalMessageEntity>
+
+    @Insert
+    suspend fun insert(entity: LocalMessageEntity): Long
+
+    @Query(
+        "UPDATE local_messages SET status = :status, errorCode = :errorCode, read = :read " +
+            "WHERE id = :id"
+    )
+    suspend fun updateStatus(id: Long, status: String, errorCode: Int?, read: Boolean)
+
+    @Query("UPDATE local_messages SET systemMessageId = :messageId, providerUri = :uri WHERE id = :id")
+    suspend fun attachSystemMessage(id: Long, messageId: Long?, uri: String?)
+
+    @Query("UPDATE local_messages SET threadId = :newThreadId WHERE threadId = :oldThreadId")
+    suspend fun repointThread(oldThreadId: Long, newThreadId: Long)
+
+    @Query("UPDATE local_messages SET threadId = :threadId WHERE id = :id")
+    suspend fun setThread(id: Long, threadId: Long)
+
+    @Query("UPDATE local_messages SET read = 1 WHERE threadId = :threadId")
+    suspend fun markThreadRead(threadId: Long)
+
+    @Query("DELETE FROM local_messages WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM local_messages WHERE threadId = :threadId")
+    suspend fun deleteThread(threadId: Long)
+
+    @Query("DELETE FROM local_messages WHERE threadId = :threadId AND systemMessageId IS NULL")
+    suspend fun deleteLocalOnlyInThread(threadId: Long)
+
+    @Query("DELETE FROM local_messages WHERE systemMessageId IS NOT NULL AND createdAt < :before")
+    suspend fun pruneMirrored(before: Long)
+
+    @Query("DELETE FROM local_messages")
+    suspend fun clear()
+}

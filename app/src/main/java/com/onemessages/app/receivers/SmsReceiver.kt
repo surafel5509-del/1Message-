@@ -6,6 +6,7 @@ import android.content.Intent
 import android.provider.Telephony
 import com.onemessages.app.core.Logx
 import com.onemessages.app.data.repository.ConversationRepository
+import com.onemessages.app.data.repository.MessageArchiveRepository
 import com.onemessages.app.data.repository.ProviderChangeNotifier
 import com.onemessages.app.di.ApplicationScope
 import com.onemessages.app.model.Message
@@ -32,6 +33,7 @@ class SmsReceiver : BroadcastReceiver() {
     @Inject lateinit var conversationRepository: ConversationRepository
     @Inject lateinit var notifier: MessageNotifier
     @Inject lateinit var providerNotifier: ProviderChangeNotifier
+    @Inject lateinit var archive: MessageArchiveRepository
     @Inject @ApplicationScope lateinit var appScope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -67,22 +69,35 @@ class SmsReceiver : BroadcastReceiver() {
             return
         }
 
+        // Archive first: the message must never be lost because a provider write was rejected
+        // (role revoked, ROM quirk, database locked). The provider copy is a mirror.
+        val threadHint = provider.findExistingThreadId(address) ?: -1L
         val insertedId = provider.insertIncomingSms(address, body, timestamp, subId)
+        val resolvedThread = insertedId?.let { id ->
+            provider.loadMessage(id, MessageSource.SMS)?.threadId
+        } ?: threadHint
+        val archiveId = archive.recordIncoming(
+            address = address,
+            body = body,
+            threadId = resolvedThread,
+            subscriptionId = subId,
+            timestamp = timestamp,
+            read = false,
+            systemMessageId = insertedId,
+        )
         if (insertedId == null) {
-            // We could not persist (role lost between broadcast and handling). Post a
-            // notification anyway so the user does not silently miss a message, but make the
-            // limitation explicit in the log.
-            Logx.w("SmsReceiver", "could not persist incoming message (role/permission)", null)
-            return
+            Logx.w("SmsReceiver", "provider copy unavailable; message kept in the app archive", null)
         }
         providerNotifier.notifyChanged()
 
-        val threadId = provider.loadMessage(insertedId, MessageSource.SMS)?.threadId
-            ?: provider.findExistingThreadId(address)
-            ?: return
+        val threadId = if (resolvedThread > 0) {
+            resolvedThread
+        } else {
+            archive.syntheticThreadId(archive.addressKey(address))
+        }
         val conversation = conversationRepository.getConversation(threadId)
         val message = Message(
-            id = insertedId,
+            id = archiveId,
             source = MessageSource.SMS,
             threadId = threadId,
             address = address,
